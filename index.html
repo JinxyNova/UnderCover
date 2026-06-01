@@ -1063,43 +1063,7 @@ function startLocalGame(data) {
 // =============================================
 // PHASE RÉVÉLATION (chaque joueur voit son mot)
 // =============================================
-function renderRevealPhase(data) {
-  const idx = data.currentPlayer || 0;
-  if (idx >= playerNames.length) {
-    // Tous ont vu leur mot → passer au vote
-    update(roomRef, { gamePhase: 'vote', currentVoterIndex: 0 });
-    return;
-  }
-  const name = playerNames[idx];
 
-  // Est-ce mon tour de voir mon mot ?
-  const myName = data.players && data.players[myId] ? data.players[myId].name : '';
-  const isMyTurn = (name === myName);
-
-  if (isMyTurn) {
-    gs().innerHTML = `
-      <div class="card">
-        <div class="my-turn-badge">🎯 C'est ton tour !</div>
-        <div class="player-header">
-          <div class="player-name">${name}</div>
-          <div class="player-sub">JOUEUR ${idx + 1} / ${playerNames.length} — 見る前にタップ</div>
-        </div>
-        <button class="btn btn-primary" onclick="showMyWord()">Voir mon mot 👀</button>
-        <div id="wordBox"></div>
-      </div>`;
-  } else {
-    gs().innerHTML = `
-      <div class="card" style="text-align:center;">
-        <div class="status-bar">⏳ En attente que <b>${name}</b> regarde son mot…</div>
-        <div class="player-header">
-          <div class="player-name">${name}</div>
-          <div class="player-sub">JOUEUR ${idx + 1} / ${playerNames.length}</div>
-        </div>
-        <div class="waiting-dots"><div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div></div>
-        <div style="color:var(--grey);font-size:13px;margin-top:10px;">Passe le téléphone à <b>${name}</b> 📱</div>
-      </div>`;
-  }
-}
 
 window.showMyWord = function() {
   const player = myRoleData;
@@ -1145,9 +1109,6 @@ window.showMyWord = function() {
 // Cache pour currentPlayer pendant révélation
 let data_currentPlayer_cache = 0;
 
-// Override renderRevealPhase pour cacher la valeur
-const _origRenderReveal = renderRevealPhase;
-// Redéfinir pour mémoriser currentPlayer
 function renderRevealPhase(data) {
   data_currentPlayer_cache = data.currentPlayer || 0;
   const idx = data_currentPlayer_cache;
