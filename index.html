@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Undercover — Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #c0392b;
+  --red-light: #e74c3c;
+  --gold: #c9a84c;
+  --gold-light: #f0c040;
+  --ink: #1a0a00;
+  --paper: #f5ede0;
+  --paper-dark: #e8d9c5;
+  --white: #fff8f0;
+  --grey: #8a7a6a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  background-color: #1a0a00;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(192,57,43,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(201,168,76,0.12) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(201,168,76,0.04)' stroke-width='1'%3E%3Cpath d='M40 5 L40 75 M5 40 L75 40 M15 15 L65 65 M65 15 L15 65'/%3E%3Ccircle cx='40' cy='40' r='25'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3C/g%3E%3C/svg%3E");
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px 16px 40px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--ink);
+}
+.petal { position: fixed; top: -20px; font-size: 18px; animation: fall linear infinite; pointer-events: none; z-index: 0; opacity: 0.6; }
+@keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 0.7; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+.container { width: 100%; max-width: 520px; z-index: 1; position: relative; }
+.card { background: var(--paper); border-radius: 4px; padding: 28px 24px; box-shadow: 0 0 0 1px rgba(201,168,76,0.4), 0 2px 0 0 var(--gold), 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4); position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: linear-gradient(180deg, var(--red) 0%, var(--gold) 100%); }
+.game-title { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 900; text-align: center; color: var(--ink); letter-spacing: 0.05em; margin-bottom: 4px; }
+.game-subtitle { text-align: center; font-size: 12px; color: var(--grey); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 24px; }
+.divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px 0; }
+.section-title { font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+.slider-row { display: flex; align-items: center; gap: 14px; background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.3); border-radius: 3px; padding: 12px 14px; margin-bottom: 10px; }
+.slider-label { font-size: 14px; font-weight: 700; color: var(--ink); min-width: 130px; flex-shrink: 0; }
+.slider-label span { font-size: 11px; font-weight: 400; color: var(--grey); display: block; }
+input[type="range"] { flex: 1; -webkit-appearance: none; height: 4px; background: linear-gradient(90deg, var(--red), var(--gold)); border-radius: 2px; outline: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--white); border: 2px solid var(--gold); border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.slider-value { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 900; color: var(--red); min-width: 28px; text-align: center; }
+.player-bar-wrap { margin-bottom: 10px; }
+.player-bar-dots { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; min-height: 20px; }
+.dot { width: 20px; height: 20px; border-radius: 50%; background: var(--paper-dark); border: 1.5px solid rgba(201,168,76,0.4); transition: all 0.2s; }
+.dot.civil { background: #27ae60; border-color: #27ae60; }
+.dot.undercover { background: var(--red); border-color: var(--red); }
+.dot.mrwhite { background: #bdc3c7; border-color: #7f8c8d; }
+.dot.joker { background: var(--gold-light); border-color: var(--gold); }
+.dot.empty { background: rgba(138,122,106,0.15); border-color: rgba(138,122,106,0.2); }
+.dot-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.dot-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--grey); }
+.dot-mini { width: 12px; height: 12px; border-radius: 50%; }
+.input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+input[type="text"], select { flex: 1; padding: 12px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; background: var(--white); color: var(--ink); font-size: 15px; font-family: 'Noto Sans JP', sans-serif; outline: none; transition: border-color 0.2s; }
+input[type="text"]:focus, select:focus { border-color: var(--red); }
+select { width: 100%; cursor: pointer; }
+.names-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; min-height: 10px; }
+.name-tag { display: flex; align-items: center; gap: 8px; background: var(--ink); color: var(--white); padding: 6px 12px; border-radius: 2px; font-size: 13px; font-weight: 700; border: 1px solid var(--gold); animation: pop .2s ease; }
+.name-tag .remove-btn { width: 18px; height: 18px; border-radius: 50%; background: var(--red); color: white; border: none; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; margin: 0; flex-shrink: 0; }
+@keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.option-box { display: flex; justify-content: space-between; align-items: center; background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.3); border-radius: 3px; padding: 12px 14px; margin-bottom: 10px; font-size: 14px; font-weight: 700; color: var(--ink); }
+.toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle input { display: none; }
+.toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+.toggle-slider::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: 0.3s; }
+.toggle input:checked + .toggle-slider { background: var(--red); }
+.toggle input:checked + .toggle-slider::after { transform: translateX(20px); }
+.btn { width: 100%; padding: 15px; margin-top: 16px; border: none; border-radius: 3px; font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 700; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+.btn-primary { background: linear-gradient(135deg, var(--red) 0%, #8b0000 100%); color: var(--white); box-shadow: 0 4px 0 #5a0000, 0 6px 20px rgba(192,57,43,0.4); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #5a0000, 0 10px 24px rgba(192,57,43,0.5); }
+.btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #5a0000; }
+.btn-secondary { background: var(--paper-dark); color: var(--ink); border: 1px solid var(--gold); box-shadow: 0 3px 0 rgba(201,168,76,0.5); }
+.btn-secondary:hover { transform: translateY(-1px); }
+.btn-secondary:active { transform: translateY(1px); }
+.btn-add { width: auto; padding: 12px 18px; flex-shrink: 0; margin-top: 0; background: var(--ink); color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; font-family: 'Noto Sans JP', sans-serif; font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.btn-add:hover { background: var(--gold); color: var(--ink); }
+.error { text-align: center; color: var(--red); font-weight: 700; font-size: 13px; margin-top: 10px; min-height: 18px; }
+.hint { text-align: center; color: var(--grey); font-size: 12px; margin-top: 14px; letter-spacing: 0.1em; }
+.player-header { text-align: center; margin-bottom: 20px; }
+.player-name { font-family: 'Noto Serif JP', serif; font-size: 32px; font-weight: 900; color: var(--ink); }
+.player-sub { font-size: 13px; color: var(--grey); letter-spacing: 0.2em; margin-top: 4px; }
+.word-card { border-radius: 4px; padding: 32px 20px; text-align: center; margin: 16px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.word-card.civil { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+.word-card.undercover { background: linear-gradient(135deg, var(--red), #e74c3c); color: white; }
+.word-card.white { background: linear-gradient(135deg, #ecf0f1, #bdc3c7); color: var(--ink); }
+.word-card.joker { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--ink); }
+.word-text { font-family: 'Noto Serif JP', serif; font-size: 36px; font-weight: 900; letter-spacing: 0.02em; margin-bottom: 8px; }
+.word-role { font-size: 16px; font-weight: 700; opacity: 0.85; letter-spacing: 0.15em; text-transform: uppercase; }
+.word-desc { font-size: 14px; opacity: 0.7; margin-top: 6px; }
+.hint-badge { display: inline-block; background: rgba(0,0,0,0.15); border-radius: 20px; padding: 4px 12px; font-size: 12px; margin-top: 10px; opacity: 0.8; letter-spacing: 0.05em; }
+.alive-box { background: rgba(0,0,0,0.05); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 12px; text-align: center; font-size: 14px; color: var(--grey); margin: 12px 0; }
+.alive-box b { color: var(--red); }
+.vote-header { text-align: center; margin-bottom: 6px; }
+.vote-round { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 900; color: var(--ink); }
+.vote-sub { font-size: 12px; color: var(--grey); letter-spacing: 0.15em; margin-bottom: 6px; }
+.vote-progress { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 16px; text-align: center; }
+.group-info { background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: var(--grey); text-align: center; }
+.group-info b { color: var(--ink); }
+.vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vote-card { background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.35); border-radius: 3px; padding: 16px 10px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.vote-card:hover { transform: translateY(-2px); background: var(--ink); color: var(--white); border-color: var(--gold); }
+.vote-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--red), var(--gold)); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-family: 'Noto Serif JP', serif; font-size: 20px; font-weight: 900; color: white; }
+.vote-name { font-size: 14px; font-weight: 700; }
+.vote-count { font-size: 11px; color: var(--grey); margin-top: 4px; }
+.result-box { background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 28px 20px; text-align: center; margin: 16px 0; }
+.result-eliminated { font-family: 'Noto Serif JP', serif; font-size: 40px; font-weight: 900; color: var(--ink); margin-bottom: 8px; }
+.result-role { font-size: 18px; font-weight: 700; color: var(--grey); margin-bottom: 14px; }
+.result-winner { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+.result-message { font-size: 14px; color: var(--grey); }
+.scoreboard { margin: 16px 0; }
+.score-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(201,168,76,0.2); font-size: 14px; }
+.score-row:last-child { border-bottom: none; }
+.score-bar { flex: 1; height: 8px; background: rgba(201,168,76,0.2); border-radius: 4px; overflow: hidden; }
+.score-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--gold)); border-radius: 4px; transition: width 0.8s ease; }
+.score-votes { font-weight: 700; min-width: 25px; text-align: right; color: var(--red); }
+.group-voter-display { background: var(--ink); color: var(--gold); border-radius: 3px; padding: 14px; text-align: center; margin-bottom: 14px; font-family: 'Noto Serif JP', serif; font-size: 20px; font-weight: 900; border: 1px solid var(--gold); }
+.group-voter-sub { font-family: 'Noto Sans JP', sans-serif; font-size: 12px; color: rgba(240,192,64,0.6); margin-top: 4px; letter-spacing: 0.15em; }
+.solo-mode-badge { background: linear-gradient(135deg,#27ae60,#2ecc71); color:white; border-radius:3px; padding:6px 14px; font-size:12px; font-weight:700; text-align:center; margin-bottom:12px; letter-spacing:0.1em; }
+.cat-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.cat-chip { padding: 8px 12px; border-radius: 20px; border: 1.5px solid rgba(201,168,76,0.35); background: var(--paper-dark); color: var(--grey); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.18s; user-select: none; }
+.cat-chip:hover { border-color: var(--gold); color: var(--ink); }
+.cat-chip.active { background: var(--ink); color: var(--gold); border-color: var(--gold); }
+.cat-chip[data-cat="Random 🎲"].active { background: linear-gradient(135deg, var(--red), #8b0000); color: var(--white); border-color: var(--red); }
+
+/* ===== ONLINE STYLES ===== */
+.online-badge { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #1a6b3a, #27ae60); color: white; border-radius: 3px; padding: 8px 14px; font-size: 13px; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.05em; }
+.online-badge .dot-live { width: 8px; height: 8px; border-radius: 50%; background: #7fff7f; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+.room-code-box { background: var(--ink); border: 2px solid var(--gold); border-radius: 4px; padding: 20px; text-align: center; margin: 16px 0; }
+.room-code-label { font-size: 11px; color: rgba(240,192,64,0.6); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px; }
+.room-code { font-family: 'Noto Serif JP', serif; font-size: 48px; font-weight: 900; color: var(--gold); letter-spacing: 0.15em; }
+.room-code-hint { font-size: 12px; color: rgba(240,192,64,0.5); margin-top: 6px; }
+.player-list { margin: 12px 0; }
+.player-list-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.3); border-radius: 3px; margin-bottom: 6px; font-size: 14px; font-weight: 700; }
+.player-list-item .host-badge { font-size: 10px; background: var(--red); color: white; padding: 2px 7px; border-radius: 20px; font-weight: 700; letter-spacing: 0.05em; }
+.player-list-item .ready-dot { width: 10px; height: 10px; border-radius: 50%; background: #27ae60; margin-left: auto; }
+.player-list-item .wait-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--grey); margin-left: auto; }
+.mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.mode-tab { flex: 1; padding: 12px; border: 1.5px solid rgba(201,168,76,0.35); background: var(--paper-dark); border-radius: 3px; text-align: center; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--grey); transition: all 0.2s; }
+.mode-tab.active { background: var(--ink); color: var(--gold); border-color: var(--gold); }
+.invite-box { background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 14px; margin: 10px 0; }
+.invite-link { font-size: 12px; color: var(--grey); word-break: break-all; margin-bottom: 8px; }
+.waiting-dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0; }
+.waiting-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); animation: bounce 1.2s infinite; }
+.waiting-dot:nth-child(2) { animation-delay: 0.2s; }
+.waiting-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
+.status-bar { background: var(--ink); color: var(--gold); border-radius: 3px; padding: 10px 14px; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 12px; border: 1px solid rgba(201,168,76,0.4); }
+.my-turn-badge { background: linear-gradient(135deg, var(--red), #8b0000); color: white; border-radius: 3px; padding: 8px 14px; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 12px; animation: pulse 1.5s infinite; }
+.config-section { background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.25); border-radius: 3px; padding: 14px; margin-bottom: 10px; }
+.firebase-config-hint { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.3); border-radius: 3px; padding: 14px; margin-bottom: 16px; font-size: 12px; color: var(--grey); line-height: 1.7; }
+.firebase-config-hint b { color: var(--red); }
+.firebase-config-hint code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 2px; font-family: monospace; font-size: 11px; }
+
+/* ===== SETUP WIZARD ===== */
+.setup-steps { display: flex; gap: 0; margin-bottom: 20px; }
+.setup-step-dot { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+.setup-step-dot:not(:last-child)::after { content:''; position:absolute; top:14px; left:50%; width:100%; height:2px; background: rgba(201,168,76,0.2); z-index:0; }
+.setup-step-dot.done:not(:last-child)::after { background: var(--gold); }
+.step-circle { width:28px; height:28px; border-radius:50%; border:2px solid rgba(201,168,76,0.3); background: var(--paper-dark); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:var(--grey); z-index:1; transition: all 0.3s; }
+.setup-step-dot.active .step-circle { border-color:var(--red); background:var(--red); color:white; }
+.setup-step-dot.done .step-circle { border-color:var(--gold); background:var(--gold); color:var(--ink); }
+.step-label { font-size:9px; color:var(--grey); margin-top:4px; letter-spacing:0.05em; text-align:center; font-weight:700; }
+.setup-step-dot.active .step-label { color:var(--red); }
+.setup-step-dot.done .step-label { color:var(--gold); }
+
+.wizard-panel { display:none; animation: fadeIn 0.3s ease; }
+.wizard-panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+.step-card { background: var(--paper-dark); border:1px solid rgba(201,168,76,0.3); border-radius:4px; padding:16px; margin-bottom:12px; }
+.step-card-title { font-size:13px; font-weight:900; color:var(--ink); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.step-card-body { font-size:12px; color:var(--grey); line-height:1.7; }
+.step-card-body b { color:var(--ink); }
+.step-card-body code { background:rgba(0,0,0,0.1); padding:3px 8px; border-radius:3px; font-family:monospace; font-size:11px; display:inline-block; margin:2px 0; color:var(--ink); }
+.step-card-body .code-block { background:var(--ink); color:var(--gold); padding:10px 14px; border-radius:3px; font-family:monospace; font-size:12px; display:block; margin:8px 0; word-break:break-all; letter-spacing:0.02em; }
+.step-card-body .link-btn { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#FF6B35,#F7931E); color:white; padding:8px 14px; border-radius:3px; font-size:13px; font-weight:700; text-decoration:none; margin-top:6px; cursor:pointer; border:none; }
+
+.fb-fields { display:grid; gap:10px; margin-bottom:12px; }
+.fb-field { display:flex; flex-direction:column; gap:4px; }
+.fb-field label { font-size:11px; font-weight:700; color:var(--grey); letter-spacing:0.1em; text-transform:uppercase; }
+.fb-field input { padding:10px 12px; border:1px solid rgba(201,168,76,0.4); border-radius:3px; background:var(--white); color:var(--ink); font-size:13px; font-family:monospace; outline:none; transition:border-color 0.2s; }
+.fb-field input:focus { border-color:var(--red); }
+.fb-field input.ok { border-color:#27ae60; background:#f0fff4; }
+.fb-field input.err { border-color:var(--red); background:#fff0f0; }
+.fb-paste-area { position:relative; }
+.fb-paste-area textarea { width:100%; height:120px; padding:10px 12px; border:2px dashed rgba(201,168,76,0.4); border-radius:3px; background:var(--white); color:var(--ink); font-size:11px; font-family:monospace; outline:none; resize:none; transition:border-color 0.2s; }
+.fb-paste-area textarea:focus { border-color:var(--gold); border-style:solid; }
+.fb-paste-area .paste-hint { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; transition:opacity 0.2s; }
+.fb-paste-area .paste-hint-icon { font-size:28px; display:block; margin-bottom:4px; }
+.fb-paste-area .paste-hint-text { font-size:12px; color:var(--grey); font-weight:700; }
+.tab-switch { display:flex; gap:6px; margin-bottom:14px; }
+.tab-switch-btn { flex:1; padding:9px; border:1.5px solid rgba(201,168,76,0.35); background:var(--paper-dark); border-radius:3px; font-size:13px; font-weight:700; color:var(--grey); cursor:pointer; transition:all 0.2s; text-align:center; }
+.tab-switch-btn.active { background:var(--ink); color:var(--gold); border-color:var(--gold); }
+.connect-status { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:3px; font-size:13px; font-weight:700; margin-bottom:10px; }
+.connect-status.testing { background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.4); color:var(--ink); }
+.connect-status.success { background:rgba(39,174,96,0.12); border:1px solid rgba(39,174,96,0.4); color:#1a6b3a; }
+.connect-status.error { background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.3); color:var(--red); }
+.spin { animation: spin 1s linear infinite; display:inline-block; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.nav-btns { display:flex; gap:8px; margin-top:12px; }
+.nav-btns .btn { margin-top:0; flex:1; padding:12px; font-size:15px; }
+</style>
+</head>
+<body>
+<div class="petal" style="left:5%;animation-duration:7s;animation-delay:0s">🌸</div>
+<div class="petal" style="left:15%;animation-duration:9s;animation-delay:2s">🌸</div>
+<div class="petal" style="left:30%;animation-duration:6s;animation-delay:4s">🌸</div>
+<div class="petal" style="left:50%;animation-duration:11s;animation-delay:1s">🌸</div>
+<div class="petal" style="left:65%;animation-duration:8s;animation-delay:3s">🌸</div>
+<div class="petal" style="left:80%;animation-duration:10s;animation-delay:5s">🌸</div>
+<div class="petal" style="left:92%;animation-duration:7.5s;animation-delay:6s">🌸</div>
+
+<div class="container">
+  <!-- ÉCRAN 0 : CONNEXION FIREBASE -->
+  <div id="firebaseScreen">
+    <div class="card">
+      <div class="game-title">🎭 Ultimate Undercover</div>
+      <div class="game-subtitle">オンライン — Connexion Firebase</div>
+      <div class="divider"></div>
+      <div class="section-title">🔥 Connecte ton projet Firebase</div>
+      <div class="fb-fields" style="margin-top:10px;">
+        <div class="fb-field">
+          <label>API Key</label>
+          <input type="text" id="f_apiKey" placeholder="AIzaSy..." autocomplete="off">
+        </div>
+        <div class="fb-field">
+          <label>Database URL</label>
+          <input type="text" id="f_databaseURL" placeholder="https://mon-projet-default-rtdb.firebaseio.com" autocomplete="off">
+        </div>
+        <div class="fb-field">
+          <label>Project ID</label>
+          <input type="text" id="f_projectId" placeholder="mon-projet-12345" autocomplete="off">
+        </div>
+      </div>
+      <div id="fbError" class="error"></div>
+      <button class="btn btn-primary" onclick="initFirebase()">🔌 Se connecter</button>
+      <div style="text-align:center;font-size:11px;color:var(--grey);margin-top:14px;">🔒 Config sauvegardée dans ton navigateur.<br>Tu n'auras plus à la ressaisir.</div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 1 : HOME (Créer / Rejoindre) -->
+  <div id="homeScreen" style="display:none;">
+    <div class="card">
+      <div class="game-title">🎭 Ultimate Undercover</div>
+      <div class="game-subtitle">オンライン — Multijoueur en ligne</div>
+      <div class="online-badge"><div class="dot-live"></div>Connecté à Firebase</div>
+      <div class="divider"></div>
+      <div class="section-title">✍️ Ton pseudo</div>
+      <div class="input-row" style="margin-bottom:16px;">
+        <input type="text" id="pseudoInput" placeholder="Ton nom…" maxlength="20">
+      </div>
+      <div class="mode-tabs">
+        <div class="mode-tab active" id="tabCreate" onclick="switchTab('create')">🏠 Créer une salle</div>
+        <div class="mode-tab" id="tabJoin" onclick="switchTab('join')">🔑 Rejoindre</div>
+      </div>
+      <!-- Panneau Créer -->
+      <div id="panelCreate">
+        <div class="section-title">⚙️ Paramètres de la partie</div>
+        <div class="slider-row">
+          <div class="slider-label">Joueurs<span>3 – 20</span></div>
+          <input type="range" id="players" min="3" max="20" value="5" oninput="updateSettings()">
+          <div class="slider-value" id="playersValue">5</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">Imposteurs 😈<span>Undercover</span></div>
+          <input type="range" id="undercoverCount" min="0" max="5" value="1" oninput="updateSettings()">
+          <div class="slider-value" id="undercoverValue">1</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">Mr White 👻<span>Sans mot</span></div>
+          <input type="range" id="mrWhiteCount" min="0" max="3" value="0" oninput="updateSettings()">
+          <div class="slider-value" id="mrWhiteValue">0</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">Jokers 🤡<span>Se faire élim.</span></div>
+          <input type="range" id="jokerCount" min="0" max="3" value="0" oninput="updateSettings()">
+          <div class="slider-value" id="jokerValue">0</div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-title">👥 Répartition</div>
+        <div class="player-bar-wrap">
+          <div class="player-bar-dots" id="playerBarDots"></div>
+          <div class="dot-legend">
+            <div class="dot-legend-item"><div class="dot-mini" style="background:#27ae60;border-radius:50%"></div>Civil</div>
+            <div class="dot-legend-item"><div class="dot-mini" style="background:#c0392b;border-radius:50%"></div>Imposteur</div>
+            <div class="dot-legend-item"><div class="dot-mini" style="background:#bdc3c7;border-radius:50%"></div>Mr White</div>
+            <div class="dot-legend-item"><div class="dot-mini" style="background:#f0c040;border-radius:50%"></div>Joker</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-title">🗂 Catégories</div>
+        <div class="cat-grid" id="catGrid">
+          <div class="cat-chip active" data-cat="Random 🎲" onclick="toggleCat(this)">🎲 Random</div>
+          <div class="cat-chip" data-cat="Anime" onclick="toggleCat(this)">⚔️ Anime</div>
+          <div class="cat-chip" data-cat="Jeux vidéo" onclick="toggleCat(this)">🎮 Jeux vidéo</div>
+          <div class="cat-chip" data-cat="Séries" onclick="toggleCat(this)">📺 Séries</div>
+          <div class="cat-chip" data-cat="Films" onclick="toggleCat(this)">🎬 Films</div>
+          <div class="cat-chip" data-cat="IA" onclick="toggleCat(this)">🤖 IA</div>
+          <div class="cat-chip" data-cat="Dessins animés français" onclick="toggleCat(this)">🎨 Dessins animés</div>
+          <div class="cat-chip" data-cat="Jeux de société" onclick="toggleCat(this)">🎲 Jeux de société</div>
+          <div class="cat-chip" data-cat="Animaux" onclick="toggleCat(this)">🐾 Animaux</div>
+          <div class="cat-chip" data-cat="Sports" onclick="toggleCat(this)">⚽ Sports</div>
+          <div class="cat-chip" data-cat="Sons & Musiques" onclick="toggleCat(this)">🎵 Sons & Musiques</div>
+        </div>
+        <div id="catError" style="color:var(--red);font-size:12px;font-weight:700;margin-top:6px;min-height:16px;"></div>
+        <div class="divider"></div>
+        <div class="section-title">🔧 Options</div>
+        <div class="option-box">
+          <span>Afficher imposteurs restants 👀</span>
+          <label class="toggle"><input type="checkbox" id="showAlive"><div class="toggle-slider"></div></label>
+        </div>
+        <div class="option-box">
+          <span>Les imposteurs savent leur rôle 😈</span>
+          <label class="toggle"><input type="checkbox" id="impostorKnow" checked><div class="toggle-slider"></div></label>
+        </div>
+        <div class="option-box">
+          <span>Afficher un indice au Mr White 👻💡</span>
+          <label class="toggle"><input type="checkbox" id="showHint"><div class="toggle-slider"></div></label>
+        </div>
+        <div class="option-box">
+          <span>Vote en solo (sans groupes) 🗳️</span>
+          <label class="toggle"><input type="checkbox" id="soloVote"><div class="toggle-slider"></div></label>
+        </div>
+        <div id="groupSizeRow" class="option-box">
+          <span>Taille des groupes de vote 🗳️</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="range" id="groupSize" min="2" max="6" value="3" oninput="document.getElementById('groupSizeVal').innerText=this.value" style="width:80px;">
+            <span id="groupSizeVal" style="font-weight:700;color:var(--red);min-width:16px;">3</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="createRoom()">🏠 Créer la salle</button>
+        <div class="error" id="errorBox"></div>
+      </div>
+      <!-- Panneau Rejoindre -->
+      <div id="panelJoin" style="display:none;">
+        <div class="section-title">🔑 Code de la salle</div>
+        <div class="input-row">
+          <input type="text" id="joinCodeInput" placeholder="Ex: ABCD" maxlength="4" style="text-transform:uppercase;font-size:24px;font-weight:900;text-align:center;letter-spacing:0.3em;">
+        </div>
+        <button class="btn btn-primary" onclick="joinRoom()">🚀 Rejoindre</button>
+        <div class="error" id="joinError"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 : LOBBY (Salle d'attente) -->
+  <div id="lobbyScreen" style="display:none;">
+    <div class="card">
+      <div class="game-title">🎭 Salle d'attente</div>
+      <div class="game-subtitle">待機中 — En attente des joueurs</div>
+      <div class="divider"></div>
+      <div class="room-code-box">
+        <div class="room-code-label">CODE DE LA SALLE</div>
+        <div class="room-code" id="lobbyCode">----</div>
+        <div class="room-code-hint">Partage ce code à tes amis 👆</div>
+      </div>
+      <div class="invite-box">
+        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;">🔗 Lien d'invitation</div>
+        <div class="invite-link" id="inviteLink">—</div>
+        <button class="btn btn-secondary" onclick="copyInvite()" style="margin-top:6px;padding:8px;font-size:13px;">📋 Copier le lien</button>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title">👥 Joueurs connectés (<span id="lobbyCount">0</span>/<span id="lobbyMax">5</span>)</div>
+      <div class="player-list" id="lobbyPlayerList"></div>
+      <div class="waiting-dots" id="waitingDots">
+        <div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div>
+      </div>
+      <div id="startBtnWrap" style="display:none;">
+        <button class="btn btn-primary" onclick="startGameOnline()">始める — Lancer la partie 🎌</button>
+      </div>
+      <div id="waitingMsg" style="text-align:center;color:var(--grey);font-size:13px;margin-top:10px;"></div>
+      <button class="btn btn-secondary" onclick="leaveRoom()" style="margin-top:10px;padding:10px;font-size:13px;">🚪 Quitter la salle</button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 : JEU -->
+  <div id="gameScreen" style="display:none;"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, push, remove, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// =============================================
+// ÉTAT GLOBAL
+// =============================================
+let db = null;
+let myId = Math.random().toString(36).substr(2, 8);
+let myPseudo = '';
+let roomCode = '';
+let isHost = false;
+let roomRef = null;
+let unsubscribers = [];
+let roles = [];
+let currentPlayer = 0;
+let playerNames = [];
+let votes = {};
+let groups = [];
+let currentGroupIndex = 0;
+let currentVoterInGroup = 0;
+let showAliveOption = false;
+let impostorKnowOption = true;
+let showHintOption = false;
+let soloVoteOption = false;
+let allVoters = [];
+let currentVoterIndex = 0;
+let playersData = {};
+let myRoleData = null;
+
+window.myId = myId;
+
+// =============================================
+// FIREBASE INIT
+// =============================================
+window.initFirebase = function() {
+  const errEl = document.getElementById('fbError');
+  errEl.innerText = '';
+  const apiKey = document.getElementById('f_apiKey').value.trim();
+  const databaseURL = document.getElementById('f_databaseURL').value.trim();
+  const projectId = document.getElementById('f_projectId').value.trim();
+  if (!apiKey) { errEl.innerText = '⚠️ API Key manquante.'; return; }
+  if (!databaseURL) { errEl.innerText = '⚠️ Database URL manquante.'; return; }
+  if (!projectId) { errEl.innerText = '⚠️ Project ID manquant.'; return; }
+  try {
+    const config = {
+      apiKey,
+      databaseURL,
+      projectId,
+      authDomain: projectId + '.firebaseapp.com',
+      storageBucket: projectId + '.appspot.com'
+    };
+    const app = initializeApp(config);
+    db = getDatabase(app);
+    localStorage.setItem('uc_fb_apiKey', apiKey);
+    localStorage.setItem('uc_fb_databaseURL', databaseURL);
+    localStorage.setItem('uc_fb_projectId', projectId);
+    document.getElementById('firebaseScreen').style.display = 'none';
+    document.getElementById('homeScreen').style.display = 'block';
+    updateSettings();
+    const urlParams = new URLSearchParams(window.location.search);
+    const invCode = urlParams.get('room');
+    if (invCode) {
+      document.getElementById('joinCodeInput').value = invCode.toUpperCase();
+      switchTab('join');
+    }
+  } catch(e) {
+    errEl.innerText = '⚠️ Erreur : ' + e.message;
+  }
+};
+
+// Charger config sauvegardée
+const savedApiKey = localStorage.getItem('uc_fb_apiKey');
+const savedDbURL = localStorage.getItem('uc_fb_databaseURL');
+const savedProjectId = localStorage.getItem('uc_fb_projectId');
+if (savedApiKey && savedDbURL && savedProjectId) {
+  document.getElementById('f_apiKey').value = savedApiKey;
+  document.getElementById('f_databaseURL').value = savedDbURL;
+  document.getElementById('f_projectId').value = savedProjectId;
+  setTimeout(() => window.initFirebase(), 200);
+}
+
+// =============================================
+// TABS HOME
+// =============================================
+window.switchTab = function(tab) {
+  document.getElementById('tabCreate').classList.toggle('active', tab === 'create');
+  document.getElementById('tabJoin').classList.toggle('active', tab === 'join');
+  document.getElementById('panelCreate').style.display = tab === 'create' ? 'block' : 'none';
+  document.getElementById('panelJoin').style.display = tab === 'join' ? 'block' : 'none';
+};
+
+// =============================================
+// CATÉGORIES & MOTS
+// =============================================
+const categories = {
+"Anime": [
+  ["Naruto","Boruto","Ninja aux cheveux blonds portant un bandeau"],["Luffy","Zoro","Capitaine au chapeau de paille qui étire ses membres"],["Gojo","Kakashi","Professeur aux yeux cachés aux pouvoirs hors-normes"],
+  ["Eren","Kaneki","Protagoniste transformé en créature sombre contre sa volonté"],["Pokémon","Digimon","Petites créatures à capturer et faire évoluer"],["Death Note","Code Geass","Génie lycéen qui prend le contrôle du monde avec un objet interdit"],
+  ["Blue Lock","Captain Tsubasa","Manga de compétition sur le terrain vert à 11"],["One Piece","Fairy Tail","Grand shonen avec une équipe qui cherche un trésor légendaire"],["Dragon Ball","Bleach","Combat épique entre guerriers aux pouvoirs démesurés"],
+  ["Sasuke","Itachi","Deux frères ninjas du même clan aux yeux rouges"],["Tanjiro","Zenitsu","Jeune garçon qui pourchasse les créatures de la nuit pour venger sa famille"],["Jujutsu Kaisen","Chainsaw Man","Manga sombre récent avec pouvoirs maudits et monstres"],
+  ["Tokyo Ghoul","Parasyte","Humain fusionné avec une créature monstrueuse vivant parmi les humains"],["Asta","Yuno","Deux rivaux dans un monde de magie où l'un n'a aucun pouvoir"],["Saitama","Genos","Héros capable de vaincre n'importe quel ennemi d'un seul coup"],
+  ["Hunter x Hunter","Yu Yu Hakusho","Manga du même auteur culte avec héros aux pouvoirs uniques"],["Spy x Family","Buddy Daddies","Père espion qui doit former une famille fictive pour sa mission"],
+  ["Haikyuu","Kuroko no Basket","Anime de sport collectif où une équipe de lycéens vise le sommet"],["Goku","Vegeta","Deux guerriers aliens à la chevelure hérissée qui s'affrontent puis s'allient"],["Madara","Obito","Grands antagonistes masqués dans l'univers des ninjas de Konoha"],
+  ["Levi","Mikasa","Combattants élites qui affrontent des géants en se déplaçant avec des câbles"],["Killua","Gon","Meilleurs amis dans une quête d'aventure, l'un assassin l'autre naïf"],["Ichigo","Rukia","Duo d'un shinigami et d'un humain capable de voir les esprits"],
+  ["Nami","Robin","Deux femmes de l'équipage d'un pirate au chapeau de paille"],["All Might","Endeavor","Les deux premiers héros professionnels de la hiérarchie officielle"],["Bakugo","Todoroki","Deux rivaux d'un lycée de futurs héros aux personnalités opposées"],
+  ["Mob","Saiki","Lycéen discret aux pouvoirs psychiques extraordinaires cachés à tous"],["Nezuko","Shinobu","Personnages féminins de l'anime sur les chasseurs de démons"],["Sanji","Law","Combattants élégants membres de grands équipages pirates"],
+  ["Shanks","Mihawk","Deux des personnages les plus puissants et respectés dans un monde de pirates"],["Kirito","Asuna","Couple d'un jeu vidéo massivement multijoueur piégé dans la réalité virtuelle"],["Lelouch","Light","Génie lycéen qui veut changer le monde en éliminant ceux qu'il juge mauvais"],
+  ["Meliodas","Escanor","Membres d'un groupe de guerriers nommés d'après des péchés capitaux"],["Ace","Sabo","Deux frères adoptifs d'un célèbre capitaine pirate au chapeau de paille"],["Yuji","Megumi","Duo d'exorcistes dans un lycée spécialisé contre les fléaux maudits"],
+  ["Toji","Sukuna","Antagonistes redoutables aux pouvoirs physiques ou maudits extrêmes"],["Rimuru","Ainz","Protagoniste d'isekai qui devient un seigneur tout-puissant dans un autre monde"],
+  ["Mikoto","Touma","Personnages d'une ville scientifique japonaise remplie d'étudiants aux pouvoirs"],["Edward","Alphonse","Deux frères alchimistes cherchant à retrouver leurs corps perdus"],["Roy","Maes","Deux militaires amis dans un monde d'alchimie et de complots d'État"],
+  ["Asuka","Rei","Deux pilotes de méchas géants aux personnalités radicalement opposées"],["Simon","Kamina","Duo de la résistance qui se bat dans des foreuses mécaniques géantes"],["Spike","Jet","Chasseurs de primes à bord d'un vaisseau dans un futur spatial"],
+  ["Yato","Bishamon","Deux divinités japonaises aux relations conflictuelles dans le monde des esprits"],["Rin","Yukio","Deux frères jumeaux dont l'un est fils de Satan et l'autre exorciste"],["Alibaba","Aladdin","Duo de jeunes héros dans un monde inspiré des mille et une nuits"],
+  ["Natsu","Erza","Mages d'une guilde célèbre partant en quêtes dans un monde fantastique"],["Tsuna","Reborn","Adolescent maladroit entraîné par un bébé pour devenir chef d'une famille mafieuse"],["Yusuke","Kuwabara","Deux amis rivaux détective du monde des esprits aux pouvoirs de combat"],
+  ["Shoto","Katsuki","Deux élèves puissants de la première promotion d'un lycée de héros"],["Denji","Aki","Chasseurs de démons travaillant pour une agence gouvernementale secrète"],["Power","Makima","Deux femmes aux rôles très différents dans un bureau de chasse aux démons"],
+  ["Itadori","Fushiguro","Deux élèves d'une école d'exorcistes combattant les malédictions"],["Gintoki","Shinpachi","Duo d'un samouraï paresseux et son apprenti dans un Japon futuriste"],["Taiga","Ryuuji","Deux lycéens maladroits qui s'entraident pour conquérir leurs amours respectifs"],
+  ["Yui","Asuna","Deux personnages féminins importants d'un anime se déroulant dans un MMO"]
+],
+"Jeux vidéo": [
+  ["Minecraft","Roblox","Jeu de construction en monde ouvert avec des blocs colorés"],["Fortnite","Apex Legends","Jeu où 100 joueurs s'affrontent jusqu'au dernier survivant"],
+  ["Valorant","CSGO","Jeu de tir tactique en 5v5 avec des agents aux capacités spéciales"],["Mario","Sonic","Personnage mascotte de jeux de plateforme emblématique des années 90"],
+  ["Rocket League","Trackmania","Jeu de compétition où des voitures font des acrobaties"],["GTA","Watch Dogs","Jeu d'action en monde ouvert dans une grande ville moderne"],
+  ["League of Legends","Dota 2","Jeu stratégique en équipe où on détruit la base ennemie"],["Resident Evil","Silent Hill","Jeu d'horreur culte avec des monstres et des énigmes"],
+  ["Call of Duty","Battlefield","Jeu de tir à la première personne dans un contexte de guerre"],["Overwatch","Paladins","Jeu de tir par équipe avec des héros aux capacités uniques"],
+  ["Zelda","Elden Ring","Aventure solo épique dans un vaste monde fantastique à explorer"],["FIFA","eFootball","Jeu vidéo de simulation du sport le plus populaire au monde"],
+  ["Terraria","Starbound","Jeu d'exploration 2D avec construction et survie dans un monde infini"],["Among Us","Goose Goose Duck","Jeu social où des imposteurs se cachent parmi les membres d'équipage"],
+  ["Animal Crossing","Stardew Valley","Jeu de vie paisible où on cultive et socialise dans un village"],["Cyberpunk 2077","Deus Ex","RPG futuriste dans une mégapole dystopique avec des implants cybernétiques"],
+  ["Clash Royale","Brawl Stars","Jeu mobile multijoueur de stratégie et combat créé par Supercell"],["PUBG","Free Fire","Battle royale réaliste où on cherche des armes dans une zone qui rétrécit"],
+  ["Halo","Destiny","Jeu de tir en science-fiction développé par le studio Bungie"],["Skyrim","The Witcher","RPG en monde ouvert dans un univers fantasy médiéval riche en lore"],
+  ["Far Cry","Just Cause","Jeu d'action en monde ouvert avec explosions et liberté totale"],["Portal","Half-Life","Jeu de tir culte développé par Valve avec des mécaniques innovantes"],
+  ["Cuphead","Hollow Knight","Jeu indépendant difficile avec un style visuel dessin animé rétro"],["Dead Cells","Hades","Jeu d'action procédural où on recommence depuis le début à chaque mort"],
+  ["God of War","Devil May Cry","Jeu d'action où un guerrier surpuissant affronte des dieux et des démons"],["RDR2","Mafia","Jeu narratif en monde ouvert avec une attention extrême aux détails cinématiques"],
+  ["Need for Speed","Burnout","Jeu de course automobile arcade avec vitesse et crashs spectaculaires"],["Pokémon","Temtem","Jeu de rôle où on capture des créatures pour les faire combattre"],
+  ["Genshin Impact","Honkai Star Rail","Jeu gacha RPG avec des personnages à débloquer développé par HoYoverse"],["Geometry Dash","Osu!","Jeu de rythme très difficile où on suit une musique avec précision"],
+  ["Poppy Playtime","FNAF","Jeu d'horreur avec des jouets animatroniques qui veulent te tuer"],["Rust","DayZ","Jeu de survie multijoueur hostile où les autres joueurs sont le plus grand danger"],
+  ["Sea of Thieves","Skull and Bones","Jeu de piraterie en mer ouverte avec des batailles navales"],["Hollow Knight","Ori","Metroidvania artistique dans un monde souterrain magnifique et mélancolique"],
+  ["Spelunky","Celeste","Jeu de plateforme indépendant très exigeant avec une progression difficile"],["Stray","Little Nightmares","Jeu d'aventure avec une atmosphère sombre et une créature vulnérable comme héros"],
+  ["Undertale","Deltarune","RPG indépendant culte où on peut épargner tous les ennemis au lieu de les tuer"],["Omori","Yume Nikki","RPG psychologique sombre explorant des thèmes difficiles à travers des rêves"],
+  ["Disco Elysium","Baldur's Gate","RPG où les dialogues et les choix sont plus importants que le combat"],["Splatoon","Arms","Jeu Nintendo exclusif avec un concept original et coloré"],
+  ["Smash Bros","Brawlhalla","Jeu de combat sur plateforme où on envoie les adversaires hors de l'écran"],["Monster Hunter","Dauntless","Jeu où on traque et affronte des créatures gigantesques pour récupérer leurs matériaux"],
+  ["Dark Souls","Sekiro","Jeu FromSoftware réputé extrêmement difficile où chaque mort est une leçon"],["Bloodborne","Lies of P","Jeu d'action atmosphérique dans un univers gothique sombre inspiré de Lovecraft"],
+  ["Nier Automata","Xenoblade","JRPG avec une bande-son exceptionnelle et une histoire profonde et mélancolique"],["Persona 5","Shin Megami Tensei","JRPG japonais où des lycéens combattent des démons dans un monde parallèle"],
+  ["Final Fantasy","Kingdom Hearts","JRPG emblématique édité par Square Enix avec magie et épées"],["Crash Bandicoot","Spyro","Mascotte PlayStation des années 90 récemment remasterisée"],
+  ["Kirby","Yoshi","Personnage Nintendo mignon et rond qui avale ses ennemis"],["Metroid","Castlevania","Jeu d'exploration non-linéaire qui a donné son nom au genre metroidvania"],
+  ["Starcraft","Age of Empires","Jeu de stratégie en temps réel où on gère des ressources et des armées"],["Cities Skylines","SimCity","Jeu de gestion où on construit et administre une ville entière"],
+  ["The Sims","BitLife","Jeu de simulation de vie où on contrôle les choix d'un personnage"],["Subnautica","No Man's Sky","Jeu d'exploration en monde infini avec des ressources à collecter"],
+  ["Warframe","Destiny","Jeu de tir coopératif où on accumule des équipements de plus en plus puissants"],["Payday","GTA Online","Jeu coopératif où on planifie et réalise des braquages en équipe"],
+  ["Dying Light","The Last of Us","Jeu de survie avec des créatures infectées dans un monde post-apocalyptique"],["Days Gone","World War Z","Jeu d'action où des hordes massives de morts-vivants envahissent les niveaux"],
+  ["Plague Inc","Pandemic","Jeu de stratégie dont l'objectif est de propager une maladie à travers le monde"]
+],
+"Séries": [
+  ["Breaking Bad","Better Call Saul","Série sur un homme ordinaire qui bascule dans le crime organisé"],["Lucifer","Supernatural","Série avec des êtres surnaturels mêlés à des enquêtes criminelles"],
+  ["Dark","Stranger Things","Série de science-fiction avec des enfants et des voyages temporels mystérieux"],["The Boys","Invincible","Série animée ou live avec des super-héros corrompus et violents"],
+  ["Squid Game","Alice in Borderland","Série coréenne où des gens jouent à des jeux mortels pour survivre"],["Friends","How I Met Your Mother","Sitcom culte sur un groupe d'amis dans un appartement new-yorkais"],
+  ["The Walking Dead","Fear The Walking Dead","Série de survie dans un monde envahi par des morts-vivants"],["Wednesday","Riverdale","Série sur des adolescents mystérieux dans une ville pleine de secrets"],
+  ["Vikings","The Last Kingdom","Série historique sur des guerriers nordiques qui envahissent et pillent"],["Peaky Blinders","Boardwalk Empire","Série sur une famille criminelle dans l'Angleterre du début du 20e siècle"],
+  ["Elite","Gossip Girl","Série sur des adolescents riches dans un lycée privé plein de scandales"],["Prison Break","Money Heist","Série sur une tentative d'évasion ou de braquage planifiée avec précision"],
+  ["Blacklist","Mindhunter","Série policière où un criminel aide les agents du FBI à résoudre des affaires"],["You","Dexter","Série dont le protagoniste est un tueur en série qui croit agir pour le bien"],
+  ["The Flash","Arrow","Série de super-héros issue de l'univers DC produite par le CW"],["Teen Wolf","The Vampire Diaries","Série sur des lycéens qui découvrent appartenir à un monde surnaturel caché"],
+  ["Narcos","Ozark","Série sur le trafic de drogues et la criminalité organisée dans les Amériques"],["Brooklyn 99","The Office","Comédie tournée en style documentaire dans un environnement de travail"],
+  ["Suits","Billions","Série sur des professionnels très ambitieux dans la finance ou le droit"],["House","Grey's Anatomy","Série médicale dramatique dans un hôpital avec des personnages complexes"],
+  ["Euphoria","Skins","Série sur des lycéens confrontés à des sujets sombres comme la drogue"],["Reacher","Jack Ryan","Série d'action avec un agent solitaire et très compétent face à des conspirations"],
+  ["Severance","Black Mirror","Série de science-fiction qui imagine une technologie inquiétante dans un futur proche"],["Succession","Billions","Série sur une famille ou des milliardaires qui se battent pour le pouvoir"],
+  ["The Crown","Downton Abbey","Série britannique sur une famille aristocratique à travers les décennies"],["Band of Brothers","The Pacific","Mini-série de guerre sur des soldats américains pendant la Seconde Guerre mondiale"],
+  ["True Detective","Mindhunter","Série policière lente et atmosphérique sur des enquêteurs face à des tueurs"],["The Mandalorian","Andor","Série se déroulant dans la galaxie de la saga spatiale la plus célèbre"],
+  ["Loki","WandaVision","Série Marvel diffusée sur la plateforme de streaming Disney"],["Hawkeye","She-Hulk","Série Marvel avec un héros moins puissant mais attachant"],
+  ["Arcane","Castlevania","Série d'animation adulte et mature disponible sur une plateforme de streaming"],["Attack on Titan","Demon Slayer","Série animée japonaise à succès mondial avec des combats épiques"],
+  ["Cobra Kai","Karate Kid","Série qui reprend l'univers d'un film culte des années 80 des décennies plus tard"],["Stranger Things","The OA","Série avec des enfants qui explorent un monde parallèle mystérieux"],
+  ["Money Heist","Lupin","Série sur un cambrioleur charismatique et intelligent qui défie les autorités"],["Ozark","Bloodline","Série sur une famille ordinaire entraînée dans une spirale criminelle dangereuse"],
+  ["The Umbrella Academy","The Boys","Série avec un groupe de personnages aux pouvoirs spéciaux et aux relations compliquées"],["Squid Game","Hunger Games","Compétition mortelle télévisée où les participants jouent leur vie"]
+],
+"Films": [
+  ["Batman","Iron Man","Milliardaire qui devient un super-héros en costume sans pouvoir naturel"],["Shrek","Madagascar","Film d'animation DreamWorks avec des animaux dans une aventure humoristique"],
+  ["Interstellar","Inception","Film de Christopher Nolan qui explore les limites de la physique et du cerveau"],["Deadpool","Venom","Personnage de super-héros sombre et décalé avec un humour très noir"],
+  ["John Wick","Equalizer","Tueur professionnel retraité qui reprend les armes pour se venger"],["Cars","Planes","Film d'animation avec des véhicules qui parlent et participent à des courses"],
+  ["Avatar","Titanic","Film de James Cameron qui a battu tous les records au box-office mondial"],["Avengers","Justice League","Film où plusieurs super-héros s'unissent pour sauver le monde d'une menace"],
+  ["Frozen","Raiponce","Princesse Disney animée dans un monde fantastique avec des pouvoirs magiques"],["Fast & Furious","Need for Speed","Saga de films sur des courses automobiles illégales et des cascades extrêmes"],
+  ["Saw","Conjuring","Saga d'horreur très connue avec un antagoniste emblématique"],["Spider-Man","Superman","Super-héros en collant qui peut voler ou grimper aux murs"],
+  ["Thor","Hulk","Avenger doté d'une puissance physique extraordinaire issu de la mythologie ou de la science"],["Kung Fu Panda","Dragons","Film DreamWorks avec un animal qui apprend à maîtriser un art de combat"],
+  ["Joker","The Batman","Film sombre sur un personnage issu de l'univers de Gotham City"],["Doctor Strange","Scarlet Witch","Personnage Marvel qui utilise des pouvoirs magiques et mystiques"],
+  ["Star Wars","Star Trek","Saga de science-fiction spatiale culte avec des batailles dans l'espace"],["Harry Potter","Percy Jackson","Jeune garçon qui découvre ses pouvoirs dans un monde magique caché"],
+  ["Jurassic Park","King Kong","Film avec une créature gigantesque et préhistorique échappée de son enclos"],["Matrix","Ready Player One","Film de science-fiction où la réalité est une simulation numérique"],
+  ["Black Panther","Aquaman","Super-héros qui est aussi le roi d'un royaume secret et technologiquement avancé"],["Toy Story","Wall-E","Film Pixar avec des objets inanimés qui ont une vie secrète"],
+  ["Vice Versa","Coco","Film Pixar qui explore un monde invisible et émotionnel lié à la vie intérieure"],["Transformers","Pacific Rim","Film d'action avec des robots géants qui se battent contre des ennemis colossaux"],
+  ["Le Roi Lion","Tarzan","Film Disney avec un héros élevé dans la jungle parmi des animaux sauvages"],["Gladiator","300","Film épique avec des guerriers de l'Antiquité qui combattent pour leur survie"],
+  ["Inception","Tenet","Film de Christopher Nolan qui joue avec le temps ou la conscience"],["Se7en","Silence des Agneaux","Thriller psychologique très sombre sur un tueur en série et un enquêteur"],
+  ["Forrest Gump","Cast Away","Film avec Tom Hanks seul face à des épreuves qui durent des années"],["Rocky","Creed","Film de boxe sur un combattant de bas rang qui s'entraîne pour atteindre le sommet"],
+  ["Titanic","Pearl Harbor","Film catastrophe romanesque avec un amour impossible au milieu d'un désastre"],["Alien","Predator","Film d'horreur avec une créature extraterrestre qui chasse les humains"],
+  ["Home Alone","Mrs Doubtfire","Comédie familiale culte des années 90 avec beaucoup de situations absurdes"],["Scarface","The Godfather","Film culte sur un chef de la pègre qui construit et perd son empire"],
+  ["Pulp Fiction","Reservoir Dogs","Film de Quentin Tarantino avec des criminels dans des situations décalées"],["Fight Club","American Psycho","Thriller psychologique perturbant avec un protagoniste à double personnalité"],
+  ["The Dark Knight","Spider-Man 2","Film de super-héros unanimement salué comme le meilleur de sa saga"],["Avengers Endgame","Infinity War","Film Marvel qui constitue le climax d'une saga de plusieurs dizaines de films"],
+  ["Dune","Foundation","Épopée de science-fiction monumentale dans un univers interstellaire politique"],["Everything Everywhere","Multiverse of Madness","Film récent explorant le concept du multivers avec des versions alternatives"]
+],
+"IA": [
+  ["ChatGPT","Claude","Chatbot conversationnel capable de rédiger du texte sur n'importe quel sujet"],["Gemini","Copilot","Assistant IA intégré dans des outils bureautiques très répandus"],
+  ["Midjourney","DALL·E","Outil qui génère des images réalistes ou artistiques à partir de texte"],["OpenAI","Anthropic","Entreprise pionnière dans la recherche et le développement d'intelligence artificielle"],
+  ["Perplexity","You.com","Moteur de recherche nouvelle génération qui utilise l'IA pour synthétiser les résultats"],["Runway","Pika","Outil qui génère des clips vidéo à partir d'une description textuelle"],
+  ["Sora","Gen-2","Modèle de génération vidéo qui crée des scènes réalistes depuis du texte"],["DeepSeek","Qwen","Grand modèle de langage développé par une entreprise asiatique"],
+  ["Leonardo AI","Canva AI","Plateforme créative qui utilise l'IA pour aider à créer des visuels"],["Notion AI","Gamma","Assistant IA intégré dans un outil de prise de notes ou de présentation"],
+  ["Character AI","Replika","Chatbot spécialisé dans les conversations et jeux de rôle avec des personnages"],["Stable Diffusion","Flux","Modèle de génération d'images open-source qu'on peut héberger soi-même"],
+  ["ElevenLabs","Murf","Outil qui clone ou synthétise une voix humaine de façon très réaliste"],["Firefly","Ideogram","Outil de création visuelle assistée par IA proposé par une grande entreprise logicielle"],
+  ["Cursor","Windsurf","Éditeur de code intelligent où l'IA écrit et modifie le code à ta place"],["GPT-4","Claude 3","Version avancée d'un grand modèle de langage proposée aux utilisateurs premium"],
+  ["Llama","Mistral","Grand modèle de langage en accès libre qu'on peut utiliser sans restriction"],["Whisper","AssemblyAI","Outil de transcription automatique qui retranscrit la parole en texte écrit"],
+  ["GitHub Copilot","Tabnine","Extension de développement qui suggère du code en temps réel pendant qu'on tape"],["Kling","Wan","Modèle de génération vidéo par intelligence artificielle développé en Chine"],
+  ["Grok","Pi","Chatbot IA alternatif développé en dehors des grands acteurs habituels du marché"],["V0","Bolt","Outil qui génère automatiquement des interfaces utilisateur depuis une description"],
+  ["HeyGen","Synthesia","Outil qui crée des vidéos avec un avatar humain animé qui parle à l'écran"],["Magnific","Topaz","Outil qui améliore et agrandit la qualité d'une image grâce à l'IA"],
+  ["Udio","Suno","Outil qui compose et génère de la musique complète à partir d'une description"],["Perplexity","You.com","Outil de recherche augmentée par IA qui cite ses sources en temps réel"]
+],
+"Dessins animés français": [
+  ["Code Lyoko","Martin Mystère","Série animée où des collégiens combattent dans un monde virtuel numérique"],["Oggy","Zig et Sharko","Série muette avec un animal qui court après d'autres dans des gags répétitifs"],
+  ["Foot 2 Rue","Galactik Football","Série animée française dont l'univers tourne autour du sport avec ballon rond"],["Titeuf","Lou","Série humoristique sur la vie quotidienne d'un enfant à l'école et à la maison"],
+  ["Totally Spies","Winx","Série animée avec des filles qui ont des pouvoirs et des gadgets pour sauver le monde"],["Wakfu","Dofus","Série animée tirée d'un jeu vidéo de rôle avec des guildes et des sorts"],
+  ["Les Lapins Crétins","Angelo la Débrouille","Série animée comique française avec beaucoup d'humour absurde pour les enfants"],
+  ["Il était une fois la vie","Capitaine Flam","Série d'animation éducative qui explique le fonctionnement du corps ou de l'univers"],
+  ["Corneil et Bernie","Kid Paddle","Série animée avec un protagoniste jeune qui cache un secret à sa famille"],["Cédric","Tchoupi","Série pour très jeunes enfants avec un personnage attachant à la maternelle"],
+  ["Miraculous","Ladybug","Lycéenne parisienne qui se transforme en super-héroïne pour combattre le mal"],["Franklin","Bali","Série animée pour enfants avec un animal paisible qui apprend des leçons de vie"],
+  ["SamSam","Marsupilami","Petit personnage espiègle qui vit dans une jungle et part en aventures"],["Les Sisters","Les Schtroumpfs","Série animée avec un groupe de personnages identiques vivant en communauté"],
+  ["Scooby-Doo","Tom et Jerry","Série animée avec un duo d'animaux dans des situations comiques répétitives"],["Oui-Oui","Babar","Série animée pour très jeunes enfants avec un personnage doux et coloré"],
+  ["Kirikou","Minuscule","Personnage minuscule mais courageux qui fait face à de grands dangers"],["Barbapapa","Les Shadoks","Série d'animation expérimentale et absurde des origines de la télévision française"],
+  ["Inspecteur Gadget","Ulysse 31","Héros de série animée des années 80 équipé de gadgets futuristes pour ses missions"],
+  ["Les Tortues Ninja","Ghostbusters","Groupe de héros animés des années 80 qui combattent des créatures surnaturelles ensemble"],
+  ["Dragon Flyz","M.A.S.K.","Série des années 90 avec des véhicules ou des montures qui se transforment"]
+],
+"Jeux de société": [
+  ["Uno","Skip-Bo","Jeu de cartes où on doit se débarrasser de toutes ses cartes le premier"],["Cluedo","Detective","Jeu de société où on mène une enquête pour trouver l'auteur d'un meurtre"],
+  ["Monopoly","La Bonne Paye","Jeu de plateau où on achète des propriétés avec de l'argent fictif"],["Dobble","Jungle Speed","Jeu de rapidité et de réflexes où on doit repérer des symboles identiques"],
+  ["Puissance 4","Morpion","Jeu où on doit aligner ses pions avant l'adversaire sur une grille"],["Échecs","Dames","Jeu de stratégie sur un plateau avec des pièces qu'on déplace selon des règles précises"],
+  ["Risk","Catane","Jeu de plateau de stratégie où on cherche à dominer une carte du monde"],["Time's Up","Blanc Manger Coco","Jeu de soirée où on doit faire deviner des mots ou des phrases à sa team"],
+  ["Pictionary","Dessinez c'est gagné","Jeu où un joueur dessine un mot que les autres doivent deviner"],["Qui est-ce ?","Devine tête","Jeu où on pose des questions pour identifier le personnage de l'adversaire"],
+  ["Scrabble","Boggle","Jeu de lettres où on forme des mots pour marquer des points"],["Poker","Blackjack","Jeu de cartes issu du casino avec des mises et du bluff"],
+  ["Loup Garou","Coup","Jeu de bluff où des rôles cachés créent des alliances et des trahisons"],["Mille Bornes","Monopoly Go","Jeu de cartes avec des obstacles à poser et des pare-chocs pour se défendre"],
+  ["Skyjo","Phase 10","Jeu de cartes où on gère sa main pour avoir le moins de points possible"],["Labyrinthe","Jumanji","Jeu de plateau d'aventure où le chemin change à chaque tour"],
+  ["Codenames","Skull","Jeu de déduction où des indices permettent de trouver des mots cachés"],["Dixit","Mysterium","Jeu créatif où on associe des images poétiques à des indices abstraits"],
+  ["Tarot","Belote","Jeu de cartes traditionnel français joué en famille ou en compétition"],["Jenga","Mikado","Jeu d'adresse où on retire des éléments sans faire tomber la structure"],
+  ["Trivial Pursuit","Questions pour un Champion","Jeu de culture générale avec des questions dans plusieurs catégories"],["Mastermind","Wordle","Jeu de déduction où on tente de trouver un code secret par élimination"],
+  ["7 Wonders","Citadelles","Jeu de cartes stratégique où on construit une civilisation ou une cité"],["Les Colons de Catane","Carcassonne","Jeu de plateau avec des tuiles où on construit un territoire"],
+  ["Ticket to Ride","Pandemic","Jeu de plateau coopératif ou compétitif avec des objectifs à relier"],["Azul","Sagrada","Jeu de pose de tuiles colorées pour compléter un motif décoratif"],
+  ["Hanabi","The Mind","Jeu coopératif sans communication normale où il faut deviner les intentions des autres"],["Bang!","Coup","Jeu de cartes de bluff western avec des rôles cachés et des trahisons"],
+  ["Betrayal at House","Mansions of Madness","Jeu de plateau d'horreur coopératif où un joueur peut trahir les autres"],["Descent","Gloomhaven","Jeu de plateau de donjon avec des héros qui évoluent et combattent des monstres"]
+],
+"Animaux": [
+  ["Lion","Tigre","Grand félin sauvage considéré comme le roi de la savane africaine"],["Chat","Panthère","Félin noir élégant vivant soit dans les maisons soit dans les forêts tropicales"],
+  ["Chien","Loup","Canidé vivant en meute réputé pour sa fidélité et son lien avec l'humain"],["Aigle","Faucon","Rapace diurne au regard perçant capable de plonger à grande vitesse"],
+  ["Requin","Dauphin","Animal marin gris qui nage rapidement et vit dans tous les océans du monde"],["Éléphant","Mammouth","Très grand mammifère terrestre avec une trompe et de longues défenses en ivoire"],
+  ["Crocodile","Alligator","Reptile aquatique aux mâchoires puissantes qui attend sa proie immobile"],["Guépard","Léopard","Grand félin africain tacheté connu pour ses talents de chasseur discret"],
+  ["Pingouin","Manchot","Oiseau en noir et blanc vivant dans les régions froides qui ne peut pas voler"],["Ours","Panda","Grand mammifère omnivore qui hiberne en hiver dans les forêts tempérées"],
+  ["Girafe","Zèbre","Animal africain au motif distinctif noir et blanc ou au cou très allongé"],["Hippopotame","Rhinocéros","Grand herbivore africain à la peau épaisse qui se baigne pour se rafraîchir"],
+  ["Serpent","Python","Reptile long sans membres qui avale ses proies entières grâce à sa mâchoire flexible"],["Pieuvre","Calamar","Mollusque marin avec huit tentacules capable de changer de couleur et de forme"],
+  ["Grenouille","Crapaud","Amphibien vert sauteur qui vit près des points d'eau et chante la nuit"],["Cheval","Âne","Équidé domestique utilisé historiquement pour le transport et les travaux agricoles"],
+  ["Singe","Gorille","Primate intelligent vivant en groupe dans les forêts tropicales d'Afrique"],["Koala","Paresseux","Mammifère arboricole qui dort presque toute la journée accroché aux branches"],
+  ["Renard","Coyote","Canidé sauvage solitaire réputé pour sa ruse dans les contes et fables"],["Tortue","Carapuce","Reptile à carapace dure qui avance lentement et peut vivre très longtemps"],
+  ["Aigle","Vautour","Grand oiseau au vol plané majestueux qui survole les plaines à la recherche de proies"],["Baleine","Orque","Cétacé géant qui vit dans les océans et communique par des sons complexes"],
+  ["Loup","Hyène","Prédateur vivant en meute qui chasse en groupe dans des environnements ouverts"],["Flamant rose","Ibis","Oiseau échassier aux longues pattes qui vit dans les zones humides tropicales"],
+  ["Caméléon","Gecko","Petit reptile capable de changer de couleur ou de marcher sur les murs"],["Scorpion","Mygale","Arachnide venimeux vivant dans des régions chaudes et arides du monde"],
+  ["Méduse","Anémone","Invertébré marin translucide qui flotte au gré des courants dans l'océan"],["Mante religieuse","Libellule","Insecte prédateur aux grands yeux qui chasse d'autres insectes avec précision"],
+  ["Lama","Alpaga","Mammifère d'Amérique du Sud élevé pour sa laine et utilisé comme bête de somme"],["Phoque","Morse","Mammifère marin aux grandes défenses qui vit sur les glaces polaires"],
+  ["Jaguar","Puma","Grand félin tacheté ou uni qui chasse dans les forêts d'Amérique du Sud"],["Canard","Oie","Oiseau aquatique palmipède élevé dans les fermes ou vivant près des étangs"],
+  ["Ara","Perroquet","Oiseau tropical aux plumes très colorées capable de répéter des mots humains"]
+],
+"Sports": [
+  ["Football","Rugby","Sport d'équipe où on marque des points avec un ballon sur un grand terrain gazonné"],["Basket","Handball","Sport d'équipe en salle où on lance une balle dans un filet ou un but"],
+  ["MMA","Boxe","Sport de combat où deux adversaires s'affrontent dans un espace délimité"],["Tennis","Padel","Sport de raquette individuel ou en double où on frappe une balle par-dessus un filet"],
+  ["Natation","Plongée","Sport pratiqué dans l'eau où le corps se déplace sans aide mécanique"],["F1","MotoGP","Compétition motorisée de vitesse extrême sur un circuit avec des ingénieurs dans les stands"],
+  ["Baseball","Softball","Sport américain avec une batte et une balle où on court entre des bases"],["Golf","Mini-golf","Sport de précision où on frappe une balle pour la faire entrer dans un trou"],
+  ["Athlétisme","Triathlon","Discipline sportive qui teste l'endurance sur de longues distances"],["Ping-pong","Badminton","Sport de raquette légère joué en intérieur sur une petite table ou un terrain"],
+  ["Ski","Snowboard","Sport de glisse pratiqué en montagne sur la neige en hiver"],["Surf","Kitesurf","Sport de glisse nautique où on utilise une force naturelle pour avancer sur l'eau"],
+  ["Volley","Beach Volley","Sport où deux équipes s'affrontent en faisant passer un ballon par-dessus un filet"],["Cyclisme","BMX","Sport où on pédaleun vélo pour gagner une course ou réaliser des figures"],
+  ["Escalade","Parkour","Sport urbain ou de plein air où on progresse en surmontant des obstacles physiques"],["Judo","Karaté","Art martial japonais pratiqué dans un dojo avec un kimono blanc et une ceinture"],
+  ["Taekwondo","Kung Fu","Art martial où on utilise surtout les pieds pour frapper l'adversaire"],["Hockey","Curling","Sport pratiqué sur une surface de glace avec un équipement spécifique"],
+  ["CrossFit","Musculation","Entraînement physique intense en salle qui développe la force et l'endurance"],["Marathon","Sprint","Course à pied pratiquée lors de compétitions d'athlétisme sur une distance précise"],
+  ["Patinage","Roller","Sport de glisse sur une surface lisse avec des lames ou des roues aux pieds"],["Boxe Thaï","Kickboxing","Sport de combat où on frappe avec les poings et les pieds sur un ring"],
+  ["Biathlon","Ski de fond","Sport nordique hivernal qui combine la glisse sur neige avec un effort d'endurance"],["Tir à l'arc","Fléchettes","Sport de précision où on projette un projectile vers une cible circulaire"],
+  ["Équitation","Polo","Sport noble pratiqué à cheval sur un grand terrain gazonné"],["Natation synchronisée","Plongeon","Discipline aquatique artistique notée sur la grâce et la technique dans l'eau"],
+  ["Handball","Water-polo","Sport collectif aquatique où on doit marquer dans un but adverse"],["Escrime","Kendo","Sport de combat avec une arme à la main dans un affrontement codifié"],
+  ["Pétanque","Bocce","Jeu de boules où on lance des boules métalliques pour se rapprocher d'un cochonnet"]
+],
+"Sons & Musiques": [
+  ["Phonk","Trap","Genre musical sombre aux basses profondes et aux hi-hats rapides issu du rap américain"],["Funk","Soul","Genre musical groovy très rythmé né dans les années 70 qui donne envie de danser"],
+  ["Classique","Jazz","Genre musical instrumental complexe joué par des musiciens très entraînés"],["Lo-fi","Chillhop","Musique douce et répétitive souvent écoutée pour se concentrer ou se détendre"],
+  ["Techno","House","Genre électronique répétitif joué dans des clubs avec une grosse caisse régulière"],["Drum and Bass","Jungle","Musique électronique très rapide avec des lignes de basse et des breaks de batterie"],
+  ["Rock","Metal","Genre musical basé sur la guitare électrique amplifiée et une batterie puissante"],["Punk","Grunge","Sous-genre du rock brut et énergique né en réaction contre la musique commerciale"],
+  ["Reggae","Ska","Genre jamaïcain au rythme syncopé et aux textes souvent engagés politiquement"],["Blues","Country","Genre musical américain aux racines populaires joué avec des guitares acoustiques"],
+  ["Gospel","R&B","Genre vocal très émotionnel né dans les communautés afro-américaines avec des chœurs puissants"],["Opéra","Chant lyrique","Art musical dramatique où des chanteurs classiques interprètent des pièces sur scène"],
+  ["Bossa Nova","Samba","Genre musical brésilien au rythme syncopé joué à la guitare et aux percussions"],["Flamenco","Tango","Danse et musique passionnée d'Amérique latine ou d'Espagne avec des claquements"],
+  ["Ambient","New Age","Genre musical atmosphérique et zen sans structure rythmique forte destiné à la méditation"],["Dubstep","Trap","Genre électronique avec des drops de basses très lourdes et des effets sonores intenses"],
+  ["Indie","Alternative","Genre musical produit de façon indépendante en dehors des grandes maisons de disques"],["Pop","Dance","Genre musical commercial très entraînant diffusé à la radio et dans les charts"],
+  ["Vaporwave","Synthwave","Genre esthétique nostalgique des années 80 avec des sons de synthétiseur rétro"],["Afrobeat","Afropop","Genre musical africain aux rythmes festifs mêlant percussions traditionnelles et modernité"],
+  ["K-pop","J-pop","Genre de musique pop asiatique avec des groupes très chorégraphiés et stylisés"],["Cumbia","Salsa","Genre de musique et de danse latine festive avec des percussions et des cuivres"],
+  ["Celtic","Folk","Genre de musique traditionnelle aux racines populaires jouée avec des instruments acoustiques"],["Hardstyle","Hardcore","Genre électronique très puissant et rapide joué lors de grands festivals en plein air"],
+  ["Psytrance","Trance","Genre électronique hypnotique et répétitif joué lors de festivals de longue durée"],["Cha-cha","Mambo","Genre de danse et musique cubaine au rythme syncopé joué avec des cuivres et percussions"],
+  ["Bluegrass","Honky-tonk","Sous-genre de la musique country américaine festive joué avec des cordes acoustiques"],["Flûte","Didgeridoo","Instrument à vent qui produit son par le souffle de l'air dans un tube creux"],
+  ["Violon","Alto","Instrument à cordes joué avec un archet que l'on pose sous le menton ou sur l'épaule"],["Piano","Orgue","Instrument à touches qu'on frappe pour faire vibrer des cordes ou des tuyaux"],
+  ["Batterie","Bongos","Instrument de percussion joué en frappant avec les mains ou des baguettes"],["Guitare acoustique","Banjo","Instrument à cordes pincées joué dans les musiques folk et country"],
+  ["Trompette","Tuba","Instrument à vent en métal cuivré qui produit un son puissant dans un orchestre"],["Mozart","Beethoven","Grand compositeur de musique classique européen dont les œuvres sont jouées dans le monde entier"],
+  ["Bach","Vivaldi","Compositeur baroque dont les œuvres complexes pour cordes restent très populaires"],["Miles Davis","John Coltrane","Musicien américain légendaire qui a redéfini les codes du jazz au 20e siècle"],
+  ["Bob Marley","Peter Tosh","Chanteur jamaïcain devenu une icône mondiale de la musique et de la paix"],["The Beatles","The Rolling Stones","Groupe de rock britannique légendaire qui a révolutionné la musique populaire mondiale"],
+  ["Pink Floyd","Led Zeppelin","Groupe de rock britannique des années 70 connu pour ses albums conceptuels et ses solos"],["Michael Jackson","Prince","Artiste américain légendaire qui a dominé la pop et le funk dans les années 80"],
+  ["David Bowie","Elton John","Artiste britannique flamboyant aux costumes extravagants et à la voix reconnaissable"],["Daft Punk","Chemical Brothers","Duo de musique électronique qui a rendu le genre populaire dans le monde entier"],["Aphex Twin","Squarepusher","Artiste électronique expérimental aux productions très complexes et inclassables"],
+  ["Stravinsky","Debussy","Compositeur classique du début du 20e siècle aux harmonies innovantes et impressionnistes"],["Chopin","Liszt","Pianiste et compositeur virtuose du 19e siècle dont les pièces pour piano sont très exigeantes"]
+]
+};
+
+// =============================================
+// UTILS
+// =============================================
+function shuffle(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function gs() { return document.getElementById('gameScreen'); }
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+// =============================================
+// SETTINGS UI
+// =============================================
+window.updateSettings = function() {
+  const p = parseInt(document.getElementById('players').value);
+  const u = parseInt(document.getElementById('undercoverCount').value);
+  const m = parseInt(document.getElementById('mrWhiteCount').value);
+  const j = parseInt(document.getElementById('jokerCount').value);
+  document.getElementById('playersValue').innerText = p;
+  document.getElementById('undercoverValue').innerText = u;
+  document.getElementById('mrWhiteValue').innerText = m;
+  document.getElementById('jokerValue').innerText = j;
+  const errBox = document.getElementById('errorBox');
+  if (!errBox) return;
+  const total = u + m + j;
+  if (u === 0 && m === 0) {
+    errBox.innerText = '⚠️ Il faut au moins 1 imposteur ou 1 Mr White.';
+  } else if (total >= p) {
+    errBox.innerText = '⚠️ Il doit rester au moins 1 civil.';
+  } else {
+    errBox.innerText = '';
+  }
+  const soloVote = document.getElementById('soloVote') && document.getElementById('soloVote').checked;
+  const gsr = document.getElementById('groupSizeRow');
+  if (gsr) gsr.style.display = soloVote ? 'none' : 'flex';
+  updatePlayerBar(p, u, m, j);
+};
+
+function updatePlayerBar(p, u, m, j) {
+  const container = document.getElementById('playerBarDots');
+  if (!container) return;
+  container.innerHTML = '';
+  const civils = p - u - m - j;
+  const types = [];
+  for (let i = 0; i < (civils > 0 ? civils : 0); i++) types.push('civil');
+  for (let i = 0; i < u; i++) types.push('undercover');
+  for (let i = 0; i < m; i++) types.push('mrwhite');
+  for (let i = 0; i < j; i++) types.push('joker');
+  for (let i = 0; i < p; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot ' + (types[i] || 'empty');
+    container.appendChild(dot);
+  }
+}
+
+window.toggleCat = function(chip) {
+  const isRandom = chip.dataset.cat === 'Random 🎲';
+  const grid = document.getElementById('catGrid');
+  const allChips = grid.querySelectorAll('.cat-chip');
+  if (isRandom) {
+    const wasActive = chip.classList.contains('active');
+    allChips.forEach(c => c.classList.remove('active'));
+    if (!wasActive) chip.classList.add('active');
+  } else {
+    const randomChip = grid.querySelector('[data-cat="Random 🎲"]');
+    randomChip.classList.remove('active');
+    chip.classList.toggle('active');
+    const anyActive = Array.from(allChips).some(c => c.classList.contains('active'));
+    if (!anyActive) randomChip.classList.add('active');
+  }
+  document.getElementById('catError').innerText = '';
+};
+
+document.getElementById('soloVote') && document.getElementById('soloVote').addEventListener('change', updateSettings);
+
+// =============================================
+// CRÉATION DE SALLE
+// =============================================
+window.createRoom = function() {
+  const pseudo = document.getElementById('pseudoInput').value.trim();
+  if (!pseudo) { alert('⚠️ Entre ton pseudo !'); return; }
+  myPseudo = pseudo;
+  isHost = true;
+
+  const players = parseInt(document.getElementById('players').value);
+  const undercoverCount = parseInt(document.getElementById('undercoverCount').value);
+  const mrWhiteCount = parseInt(document.getElementById('mrWhiteCount').value);
+  const jokerCount = parseInt(document.getElementById('jokerCount').value);
+  const showAlive = document.getElementById('showAlive').checked;
+  const impostorKnow = document.getElementById('impostorKnow').checked;
+  const showHint = document.getElementById('showHint').checked;
+  const soloVote = document.getElementById('soloVote').checked;
+  const groupSize = parseInt(document.getElementById('groupSize').value);
+
+  const totalSpecial = undercoverCount + mrWhiteCount + jokerCount;
+  if (undercoverCount === 0 && mrWhiteCount === 0) { alert('⚠️ Il faut au moins 1 imposteur ou 1 Mr White.'); return; }
+  if (totalSpecial >= players) { alert('⚠️ Il doit rester au moins 1 civil.'); return; }
+
+  const activeChips = document.querySelectorAll('.cat-chip.active');
+  let selectedCats = Array.from(activeChips).map(c => c.dataset.cat);
+  if (selectedCats.length === 0) { document.getElementById('catError').innerText = '⚠️ Choisis au moins une catégorie.'; return; }
+
+  roomCode = generateCode();
+
+  const roomData = {
+    host: myId,
+    hostName: myPseudo,
+    status: 'lobby',
+    config: { players, undercoverCount, mrWhiteCount, jokerCount, showAlive, impostorKnow, showHint, soloVote, groupSize, selectedCats },
+    players: {
+      [myId]: { name: myPseudo, host: true, joinedAt: Date.now() }
+    },
+    createdAt: Date.now()
+  };
+
+  roomRef = ref(db, 'rooms/' + roomCode);
+  set(roomRef, roomData).then(() => {
+    showLobby();
+  }).catch(e => {
+    document.getElementById('errorBox').innerText = '⚠️ Erreur Firebase : ' + e.message;
+  });
+};
+
+// =============================================
+// REJOINDRE UNE SALLE
+// =============================================
+window.joinRoom = function() {
+  const pseudo = document.getElementById('pseudoInput').value.trim();
+  const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  if (!pseudo) { alert('⚠️ Entre ton pseudo !'); return; }
+  if (code.length !== 4) { document.getElementById('joinError').innerText = '⚠️ Code à 4 caractères.'; return; }
+  myPseudo = pseudo;
+  isHost = false;
+  roomCode = code;
+
+  roomRef = ref(db, 'rooms/' + roomCode);
+  get(roomRef).then(snap => {
+    if (!snap.exists()) { document.getElementById('joinError').innerText = '⚠️ Salle introuvable.'; return; }
+    const data = snap.val();
+    if (data.status !== 'lobby') { document.getElementById('joinError').innerText = '⚠️ La partie a déjà commencé.'; return; }
+    const playerCount = Object.keys(data.players || {}).length;
+    if (playerCount >= data.config.players) { document.getElementById('joinError').innerText = '⚠️ Salle pleine.'; return; }
+    // Rejoindre
+    const playerRef = ref(db, 'rooms/' + roomCode + '/players/' + myId);
+    set(playerRef, { name: myPseudo, host: false, joinedAt: Date.now() }).then(() => {
+      showLobby();
+    });
+  }).catch(e => {
+    document.getElementById('joinError').innerText = '⚠️ Erreur : ' + e.message;
+  });
+};
+
+// =============================================
+// LOBBY
+// =============================================
+function showLobby() {
+  document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('lobbyScreen').style.display = 'block';
+  document.getElementById('lobbyCode').innerText = roomCode;
+
+  const inviteUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
+  document.getElementById('inviteLink').innerText = inviteUrl;
+
+  // Écouter les changements de la salle
+  const unsubRoom = onValue(ref(db, 'rooms/' + roomCode), (snap) => {
+    if (!snap.exists()) { alert('La salle a été supprimée.'); leaveRoom(); return; }
+    const data = snap.val();
+    playersData = data.players || {};
+    const maxPlayers = data.config.players;
+    const playerCount = Object.keys(playersData).length;
+
+    document.getElementById('lobbyMax').innerText = maxPlayers;
+    document.getElementById('lobbyCount').innerText = playerCount;
+
+    // Liste des joueurs
+    const list = document.getElementById('lobbyPlayerList');
+    if (list) {
+      list.innerHTML = '';
+      Object.entries(playersData).forEach(([pid, p]) => {
+        const div = document.createElement('div');
+        div.className = 'player-list-item';
+        div.innerHTML = `<span>${p.name}</span>${p.host ? '<span class="host-badge">HOST</span>' : ''}<div class="${pid === myId ? 'ready-dot' : 'wait-dot'}"></div>`;
+        list.appendChild(div);
+      });
+    }
+
+    // Bouton démarrer (host seulement, si salle pleine)
+    const startWrap = document.getElementById('startBtnWrap');
+    const waitMsg = document.getElementById('waitingMsg');
+    const waitDots = document.getElementById('waitingDots');
+    if (isHost) {
+      if (playerCount >= maxPlayers) {
+        startWrap.style.display = 'block';
+        waitMsg.innerText = '';
+        waitDots.style.display = 'none';
+      } else {
+        startWrap.style.display = 'none';
+        waitMsg.innerText = `En attente des joueurs… (${playerCount}/${maxPlayers})`;
+        waitDots.style.display = 'flex';
+      }
+    } else {
+      startWrap.style.display = 'none';
+      waitMsg.innerText = `En attente que l'hôte lance la partie… (${playerCount}/${maxPlayers})`;
+    }
+
+    // Si la partie a démarré
+    if (data.status === 'playing' && data.roles) {
+      unsubRoom();
+      startLocalGame(data);
+    }
+  });
+  unsubscribers.push(unsubRoom);
+}
+
+window.copyInvite = function() {
+  const url = document.getElementById('inviteLink').innerText;
+  navigator.clipboard.writeText(url).then(() => {
+    alert('✅ Lien copié !');
+  }).catch(() => {
+    prompt('Copie ce lien :', url);
+  });
+};
+
+window.leaveRoom = function() {
+  // Nettoyer les listeners
+  unsubscribers.forEach(u => u && u());
+  unsubscribers = [];
+  if (roomCode) {
+    const playerRef = ref(db, 'rooms/' + roomCode + '/players/' + myId);
+    remove(playerRef);
+    if (isHost) {
+      remove(ref(db, 'rooms/' + roomCode));
+    }
+  }
+  roomCode = '';
+  isHost = false;
+  document.getElementById('lobbyScreen').style.display = 'none';
+  document.getElementById('homeScreen').style.display = 'block';
+};
+
+// =============================================
+// DÉMARRER PARTIE (HOST)
+// =============================================
+window.startGameOnline = function() {
+  // Récupérer les données de la salle
+  get(roomRef).then(snap => {
+    const data = snap.val();
+    const config = data.config;
+    const pData = data.players || {};
+
+    const names = shuffle(Object.values(pData).map(p => p.name));
+    const { undercoverCount, mrWhiteCount, jokerCount } = config;
+
+    // Choisir catégorie et paire de mots
+    let pool = [];
+    if (config.selectedCats.includes('Random 🎲')) {
+      pool = Object.keys(categories);
+    } else {
+      pool = config.selectedCats.filter(c => categories[c]);
+    }
+    const category = pool[Math.floor(Math.random() * pool.length)];
+    const pairPool = shuffle([...categories[category]]);
+    const pair = pairPool[0];
+    const civilWord = pair[0];
+    const undercoverWord = pair[1];
+    const hintText = pair[2] || '';
+
+    // Assigner rôles
+    let rolesArr = [];
+    for (let i = 0; i < names.length; i++) {
+      rolesArr.push({ role: 'Civil', word: civilWord, hint: hintText });
+    }
+    let indexes = shuffle([...Array(names.length).keys()]);
+    let pointer = 0;
+    for (let i = 0; i < undercoverCount; i++) rolesArr[indexes[pointer++]] = { role: 'Undercover', word: undercoverWord, hint: hintText };
+    for (let i = 0; i < mrWhiteCount; i++) rolesArr[indexes[pointer++]] = { role: 'Mr White', word: '❓', hint: hintText };
+    for (let i = 0; i < jokerCount; i++) rolesArr[indexes[pointer++]] = { role: 'Joker', word: civilWord, hint: hintText };
+    rolesArr = shuffle(rolesArr);
+
+    // Mapper rôles aux noms (par ordre shufflé)
+    const roleMap = {};
+    names.forEach((name, i) => { roleMap[name] = rolesArr[i]; });
+
+    // Mapper aussi aux IDs joueurs (pour affichage perso sur chaque device)
+    const playerRoles = {};
+    Object.entries(pData).forEach(([pid, p]) => {
+      playerRoles[pid] = roleMap[p.name];
+    });
+
+    // Construire votes initiaux
+    const initialVotes = {};
+    names.forEach(n => { initialVotes[n] = 0; });
+
+    // Ordre de vote
+    const voteOrder = shuffle([...names]);
+
+    // Update Firebase
+    update(roomRef, {
+      status: 'playing',
+      roles: roleMap,           // name → role
+      playerRoles: playerRoles, // id → role
+      playerOrder: names,
+      currentPlayer: 0,
+      votes: initialVotes,
+      voteOrder: voteOrder,
+      currentVoterIndex: 0,
+      gamePhase: 'reveal'       // reveal | vote | results
+    });
+  });
+};
+
+// =============================================
+// DÉMARRER JEU LOCAL (tous les appareils)
+// =============================================
+function startLocalGame(data) {
+  unsubscribers.forEach(u => u && u());
+  unsubscribers = [];
+
+  document.getElementById('lobbyScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+
+  const config = data.config;
+  showAliveOption = config.showAlive;
+  impostorKnowOption = config.impostorKnow;
+  showHintOption = config.showHint;
+  soloVoteOption = config.soloVote;
+
+  playerNames = data.playerOrder || [];
+  roles = playerNames.map(name => data.roles[name]);
+  votes = data.votes || {};
+
+  // Mon rôle
+  const myName = (data.players && data.players[myId]) ? data.players[myId].name : '';
+  myRoleData = data.playerRoles ? data.playerRoles[myId] : null;
+
+  // Écouter les mises à jour de la salle
+  const unsubGame = onValue(ref(db, 'rooms/' + roomCode), (snap) => {
+    if (!snap.exists()) return;
+    const d = snap.val();
+    // Sync état
+    playerNames = d.playerOrder || [];
+    roles = playerNames.map(name => d.roles[name]);
+    votes = d.votes || {};
+
+    if (d.gamePhase === 'reveal') {
+      currentPlayer = d.currentPlayer || 0;
+      renderRevealPhase(d);
+    } else if (d.gamePhase === 'vote') {
+      renderVotePhase(d);
+    } else if (d.gamePhase === 'results') {
+      unsubGame();
+      renderResults(d);
+    }
+  });
+  unsubscribers.push(unsubGame);
+}
+
+// =============================================
+// PHASE RÉVÉLATION (chaque joueur voit son mot)
+// =============================================
+function renderRevealPhase(data) {
+  const idx = data.currentPlayer || 0;
+  if (idx >= playerNames.length) {
+    // Tous ont vu leur mot → passer au vote
+    update(roomRef, { gamePhase: 'vote', currentVoterIndex: 0 });
+    return;
+  }
+  const name = playerNames[idx];
+
+  // Est-ce mon tour de voir mon mot ?
+  const myName = data.players && data.players[myId] ? data.players[myId].name : '';
+  const isMyTurn = (name === myName);
+
+  if (isMyTurn) {
+    gs().innerHTML = `
+      <div class="card">
+        <div class="my-turn-badge">🎯 C'est ton tour !</div>
+        <div class="player-header">
+          <div class="player-name">${name}</div>
+          <div class="player-sub">JOUEUR ${idx + 1} / ${playerNames.length} — 見る前にタップ</div>
+        </div>
+        <button class="btn btn-primary" onclick="showMyWord()">Voir mon mot 👀</button>
+        <div id="wordBox"></div>
+      </div>`;
+  } else {
+    gs().innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div class="status-bar">⏳ En attente que <b>${name}</b> regarde son mot…</div>
+        <div class="player-header">
+          <div class="player-name">${name}</div>
+          <div class="player-sub">JOUEUR ${idx + 1} / ${playerNames.length}</div>
+        </div>
+        <div class="waiting-dots"><div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div></div>
+        <div style="color:var(--grey);font-size:13px;margin-top:10px;">Passe le téléphone à <b>${name}</b> 📱</div>
+      </div>`;
+  }
+}
+
+window.showMyWord = function() {
+  const player = myRoleData;
+  if (!player) return;
+  let cls = 'civil';
+  let roleLabel = player.role;
+  let desc = 'Trouve les imposteurs 🔍';
+  let hintHtml = '';
+
+  if (player.role === 'Undercover') {
+    cls = 'undercover';
+    if (impostorKnowOption) { desc = 'Tu es un imposteur 😈'; }
+    else { cls = 'civil'; roleLabel = 'Civil'; desc = 'Trouve les imposteurs 🔍'; }
+  }
+  if (player.role === 'Mr White') {
+    cls = 'white'; desc = "Tu n'as aucun mot 👻";
+    if (showHintOption && player.hint) hintHtml = `<div class="hint-badge">💡 Indice : ${player.hint}</div>`;
+  }
+  if (player.role === 'Joker') { cls = 'joker'; desc = 'Fais-toi éliminer 🤡'; }
+
+  let aliveBox = '';
+  if (showAliveOption) {
+    const alive = roles.filter(r => r.role === 'Undercover').length;
+    const mw = roles.filter(r => r.role === 'Mr White').length;
+    aliveBox = `<div class="alive-box">😈 Imposteurs : <b>${alive}</b> | 👻 Mr White : <b>${mw}</b></div>`;
+  }
+
+  const isLast = (data_currentPlayer_cache + 1) >= playerNames.length;
+  const nextLabel = isLast ? 'Commencer le vote 🗳️' : 'Joueur suivant ➜';
+
+  document.getElementById('wordBox').innerHTML = `
+    <div class="word-card ${cls}">
+      <div class="word-text">${player.word}</div>
+      <div class="word-role">${roleLabel}</div>
+      <div class="word-desc">${desc}</div>
+      ${hintHtml}
+    </div>
+    ${aliveBox}
+    <button class="btn btn-secondary" onclick="advanceReveal()">Joueur suivant ➜</button>
+  `;
+};
+
+// Cache pour currentPlayer pendant révélation
+let data_currentPlayer_cache = 0;
+
+// Override renderRevealPhase pour cacher la valeur
+const _origRenderReveal = renderRevealPhase;
+// Redéfinir pour mémoriser currentPlayer
+function renderRevealPhase(data) {
+  data_currentPlayer_cache = data.currentPlayer || 0;
+  const idx = data_currentPlayer_cache;
+  if (idx >= playerNames.length) {
+    update(roomRef, { gamePhase: 'vote', currentVoterIndex: 0 });
+    return;
+  }
+  const name = playerNames[idx];
+  const myName = data.players && data.players[myId] ? data.players[myId].name : '';
+  const isMyTurn = (name === myName);
+
+  if (isMyTurn) {
+    gs().innerHTML = `
+      <div class="card">
+        <div class="my-turn-badge">🎯 C'est ton tour !</div>
+        <div class="player-header">
+          <div class="player-name">${name}</div>
+          <div class="player-sub">JOUEUR ${idx + 1} / ${playerNames.length}</div>
+        </div>
+        <button class="btn btn-primary" onclick="showMyWord()">Voir mon mot 👀</button>
+        <div id="wordBox"></div>
+      </div>`;
+  } else {
+    gs().innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div class="status-bar">⏳ En attente que <b>${name}</b> regarde son mot…</div>
+        <div class="player-header"><div class="player-name">${name}</div><div class="player-sub">JOUEUR ${idx + 1} / ${playerNames.length}</div></div>
+        <div class="waiting-dots"><div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div></div>
+        <div style="color:var(--grey);font-size:13px;margin-top:10px;">Passe le téléphone à <b>${name}</b> 📱</div>
+      </div>`;
+  }
+}
+
+window.advanceReveal = function() {
+  const nextIdx = data_currentPlayer_cache + 1;
+  update(roomRef, { currentPlayer: nextIdx });
+};
+
+// =============================================
+// PHASE VOTE
+// =============================================
+function renderVotePhase(data) {
+  const voteOrder = data.voteOrder || shuffle([...playerNames]);
+  const voterIdx = data.currentVoterIndex || 0;
+
+  if (voterIdx >= playerNames.length) {
+    update(roomRef, { gamePhase: 'results' });
+    return;
+  }
+
+  const voter = voteOrder[voterIdx];
+  const myName = data.players && data.players[myId] ? data.players[myId].name : '';
+  const isMyTurn = (voter === myName);
+  const voteData = data.votes || {};
+
+  if (isMyTurn) {
+    gs().innerHTML = `
+      <div class="card">
+        <div class="my-turn-badge">🗳️ C'est ton tour de voter !</div>
+        <div class="vote-header"><div class="vote-round">🗳️ Vote</div><div class="vote-sub">VOTE EN COURS</div></div>
+        <div class="vote-progress">Votes : ${voterIdx} / ${playerNames.length}</div>
+        <div class="group-voter-display">${voter}<div class="group-voter-sub">À qui votes-tu ?</div></div>
+        <div class="vote-grid" id="voteGrid"></div>
+      </div>`;
+    const grid = document.getElementById('voteGrid');
+    playerNames.forEach(name => {
+      if (name === voter) return;
+      const card = document.createElement('div');
+      card.className = 'vote-card';
+      const v = voteData[name] || 0;
+      card.innerHTML = `<div class="vote-avatar">${name.charAt(0).toUpperCase()}</div><div class="vote-name">${name}</div><div class="vote-count">${v} vote${v > 1 ? 's' : ''}</div>`;
+      card.onclick = () => castOnlineVote(name, voteData, voterIdx, voteOrder);
+      grid.appendChild(card);
+    });
+  } else {
+    gs().innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div class="status-bar">⏳ <b>${voter}</b> est en train de voter…</div>
+        <div class="vote-header"><div class="vote-round">🗳️ Vote en cours</div></div>
+        <div class="vote-progress">Votes : ${voterIdx} / ${playerNames.length}</div>
+        <div class="waiting-dots"><div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div></div>
+        <div style="color:var(--grey);font-size:13px;margin-top:10px;">Passe le téléphone à <b>${voter}</b> 📱</div>
+      </div>`;
+  }
+}
+
+function castOnlineVote(name, currentVotes, voterIdx, voteOrder) {
+  const newVotes = { ...currentVotes };
+  newVotes[name] = (newVotes[name] || 0) + 1;
+  update(roomRef, {
+    votes: newVotes,
+    currentVoterIndex: voterIdx + 1
+  });
+}
+
+// =============================================
+// RÉSULTATS
+// =============================================
+function renderResults(data) {
+  const voteData = data.votes || {};
+  let eliminated = '';
+  let maxVotes = 0;
+  for (let player in voteData) {
+    if (voteData[player] > maxVotes) { maxVotes = voteData[player]; eliminated = player; }
+  }
+
+  const eliminatedIndex = playerNames.indexOf(eliminated);
+  const role = roles[eliminatedIndex] ? roles[eliminatedIndex].role : '?';
+  const undercoverWord = roles.find(r => r.role === 'Undercover');
+  const civilWord = roles.find(r => r.role === 'Civil');
+
+  let winner = '', message = '', color = '#27ae60';
+  if (role === 'Undercover') { winner = '🏆 Victoire des civils'; message = 'Un imposteur a été trouvé !'; color = '#27ae60'; }
+  if (role === 'Civil') { winner = '😈 Victoire des imposteurs'; message = 'Les civils se sont trompés.'; color = '#c0392b'; }
+  if (role === 'Mr White') { winner = '👻 Mr White découvert'; message = 'Mr White a été éliminé.'; color = '#7f8c8d'; }
+  if (role === 'Joker') { winner = '🤡 Le Joker gagne !'; message = 'Le Joker a réussi à se faire éliminer.'; color = '#c9a84c'; }
+
+  const civilWordText = civilWord ? civilWord.word : '?';
+  const ucWordText = undercoverWord ? undercoverWord.word : '?';
+
+  const sorted = Object.entries(voteData).sort((a, b) => b[1] - a[1]);
+  const maxV = (sorted[0] && sorted[0][1]) || 1;
+  const scoreboardHtml = sorted.map(([name, v]) => {
+    const idx = playerNames.indexOf(name);
+    const r = roles[idx];
+    const emoji = !r ? '?' : r.role === 'Civil' ? '🟢' : r.role === 'Undercover' ? '😈' : r.role === 'Mr White' ? '👻' : '🤡';
+    return `<div class="score-row"><span style="font-weight:700;min-width:90px;">${emoji} ${name}</span><div class="score-bar"><div class="score-fill" style="width:${(v/maxV*100)}%"></div></div><span class="score-votes">${v}</span></div>`;
+  }).join('');
+
+  gs().innerHTML = `
+    <div class="card">
+      <div style="text-align:center;font-family:'Noto Serif JP',serif;font-size:22px;font-weight:900;color:var(--ink);margin-bottom:16px;">結果 — Résultats</div>
+      <div class="result-box">
+        <div class="result-eliminated">☠️ ${eliminated}</div>
+        <div class="result-role">Rôle : <b>${role}</b></div>
+        <div class="result-winner" style="color:${color};">${winner}</div>
+        <div class="result-message">${message}</div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title" style="padding:0">🃏 Mots de la manche</div>
+      <div style="display:flex;gap:10px;margin:12px 0;">
+        <div style="flex:1;background:#27ae60;color:white;border-radius:3px;padding:12px;text-align:center;">
+          <div style="font-size:11px;opacity:0.8;letter-spacing:0.1em">MOT CIVIL</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:20px;font-weight:900;">${civilWordText}</div>
+        </div>
+        <div style="flex:1;background:var(--red);color:white;border-radius:3px;padding:12px;text-align:center;">
+          <div style="font-size:11px;opacity:0.8;letter-spacing:0.1em">MOT IMPOSTEUR</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:20px;font-weight:900;">${ucWordText}</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title" style="padding:0">📊 Votes reçus</div>
+      <div class="scoreboard">${scoreboardHtml}</div>
+      <button class="btn btn-primary" onclick="restartOnline()">🔄 Rejouer dans la même salle</button>
+      <button class="btn btn-secondary" onclick="leaveRoom()" style="margin-top:8px;">🚪 Quitter</button>
+    </div>`;
+}
+
+window.restartOnline = function() {
+  if (isHost) {
+    update(roomRef, {
+      status: 'lobby',
+      roles: null,
+      playerRoles: null,
+      playerOrder: null,
+      currentPlayer: 0,
+      votes: null,
+      voteOrder: null,
+      currentVoterIndex: 0,
+      gamePhase: null
+    }).then(() => {
+      document.getElementById('gameScreen').style.display = 'none';
+      document.getElementById('lobbyScreen').style.display = 'block';
+      showLobby();
+    });
+  } else {
+    // Non-host : attendre que l'host relance
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('lobbyScreen').style.display = 'block';
+    showLobby();
+  }
+};
+
+// Initialisation UI
+updateSettings && updateSettings();
+</script>
+</body>
+</html>
