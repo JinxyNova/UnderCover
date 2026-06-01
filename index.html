@@ -242,7 +242,7 @@ select { width: 100%; cursor: pointer; }
         </div>
       </div>
       <div id="fbError" class="error"></div>
-      <button class="btn btn-primary" onclick="initFirebase()">🔌 Se connecter</button>
+      <button class="btn btn-primary" id="btnConnectFirebase">🔌 Se connecter</button>
       <div style="text-align:center;font-size:11px;color:var(--grey);margin-top:14px;">🔒 Config sauvegardée dans ton navigateur.<br>Tu n'auras plus à la ressaisir.</div>
     </div>
   </div>
@@ -422,7 +422,7 @@ window.myId = myId;
 // =============================================
 // FIREBASE INIT
 // =============================================
-window.initFirebase = function() {
+function initFirebase() {
   const errEl = document.getElementById('fbError');
   errEl.innerText = '';
   const apiKey = document.getElementById('f_apiKey').value.trim();
@@ -466,8 +466,11 @@ if (savedApiKey && savedDbURL && savedProjectId) {
   document.getElementById('f_apiKey').value = savedApiKey;
   document.getElementById('f_databaseURL').value = savedDbURL;
   document.getElementById('f_projectId').value = savedProjectId;
-  setTimeout(() => window.initFirebase(), 200);
+  setTimeout(() => initFirebase(), 200);
 }
+
+// Lier le bouton directement dans le module (évite les problèmes de scope avec type="module")
+document.getElementById('btnConnectFirebase').addEventListener('click', initFirebase);
 
 // =============================================
 // TABS HOME
