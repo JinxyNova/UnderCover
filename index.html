@@ -28,15 +28,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 20px 12px 40px;
+  padding: 20px 16px 40px;
   font-family: 'Noto Sans JP', sans-serif;
   color: var(--ink);
-  overflow-x: hidden;
 }
 .petal { position: fixed; top: -20px; font-size: 18px; animation: fall linear infinite; pointer-events: none; z-index: 0; opacity: 0.6; }
 @keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 0.7; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
-.container { width: 100%; max-width: 520px; z-index: 1; position: relative; overflow: hidden; }
-.card { background: var(--paper); border-radius: 4px; padding: 20px 16px; box-shadow: 0 0 0 1px rgba(201,168,76,0.4), 0 2px 0 0 var(--gold), 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4); position: relative; overflow: hidden; box-sizing: border-box; }
+.container { width: 100%; max-width: 520px; z-index: 1; position: relative; }
+.card { background: var(--paper); border-radius: 4px; padding: 28px 24px; box-shadow: 0 0 0 1px rgba(201,168,76,0.4), 0 2px 0 0 var(--gold), 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4); position: relative; overflow: hidden; }
 .card::before { content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: linear-gradient(180deg, var(--red) 0%, var(--gold) 100%); }
 .game-title { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 900; text-align: center; color: var(--ink); letter-spacing: 0.05em; margin-bottom: 4px; }
 .game-subtitle { text-align: center; font-size: 12px; color: var(--grey); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 24px; }
@@ -135,9 +134,9 @@ select { width: 100%; cursor: pointer; }
 .online-badge { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #1a6b3a, #27ae60); color: white; border-radius: 3px; padding: 8px 14px; font-size: 13px; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.05em; }
 .online-badge .dot-live { width: 8px; height: 8px; border-radius: 50%; background: #7fff7f; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
-.room-code-box { background: var(--ink); border: 2px solid var(--gold); border-radius: 4px; padding: 16px 10px; text-align: center; margin: 16px 0; overflow: hidden; }
-.room-code-label { font-size: 11px; color: rgba(240,192,64,0.6); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px; }
-.room-code { font-family: 'Noto Serif JP', serif; font-size: clamp(28px, 10vw, 48px); font-weight: 900; color: var(--gold); letter-spacing: 0.1em; word-break: break-all; }
+.room-code-box { background: var(--ink); border: 2px solid var(--gold); border-radius: 4px; padding: 20px; text-align: center; margin: 16px 0; }
+.room-code-label { font-size: 11px; color: rgba(240,192,64,0.6); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px; }
+.room-code { font-family: 'Noto Serif JP', serif; font-size: 48px; font-weight: 900; color: var(--gold); letter-spacing: 0.15em; }
 .room-code-hint { font-size: 12px; color: rgba(240,192,64,0.5); margin-top: 6px; }
 .player-list { margin: 12px 0; }
 .player-list-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--paper-dark); border: 1px solid rgba(201,168,76,0.3); border-radius: 3px; margin-bottom: 6px; font-size: 14px; font-weight: 700; }
@@ -243,12 +242,12 @@ select { width: 100%; cursor: pointer; }
         </div>
       </div>
       <div id="fbError" class="error"></div>
-      <button class="btn btn-primary" id="btnConnectFirebase">🔌 Se connecter</button>
+      <button class="btn btn-primary" onclick="initFirebase()">🔌 Se connecter</button>
       <div style="text-align:center;font-size:11px;color:var(--grey);margin-top:14px;">🔒 Config sauvegardée dans ton navigateur.<br>Tu n'auras plus à la ressaisir.</div>
     </div>
   </div>
 
-  <!-- ÉCRAN 1 : HOME (Créer / Rejoindre) -->
+  <!-- ÉCRAN 1 : HOME (Créer / Rejoindre) — Simple comme Gartic Phone -->
   <div id="homeScreen" style="display:none;">
     <div class="card">
       <div class="game-title">🎭 Ultimate Undercover</div>
@@ -257,14 +256,50 @@ select { width: 100%; cursor: pointer; }
       <div class="divider"></div>
       <div class="section-title">✍️ Ton pseudo</div>
       <div class="input-row" style="margin-bottom:16px;">
-        <input type="text" id="pseudoInput" placeholder="Ton nom…" maxlength="20">
+        <input type="text" id="pseudoInput" placeholder="Ton nom…" maxlength="20" onkeydown="if(event.key==='Enter')document.getElementById('btnCreateRoom').click()">
       </div>
-      <div class="mode-tabs">
-        <div class="mode-tab active" id="tabCreate" onclick="switchTab('create')">🏠 Créer une salle</div>
-        <div class="mode-tab" id="tabJoin" onclick="switchTab('join')">🔑 Rejoindre</div>
+      <button class="btn btn-primary" id="btnCreateRoom" onclick="createRoom()" style="margin-top:0;">🏠 Créer une salle</button>
+      <div class="divider" style="margin:16px 0;"></div>
+      <div class="section-title">🔑 Rejoindre une salle existante</div>
+      <div class="input-row">
+        <input type="text" id="joinCodeInput" placeholder="Code : ABCD" maxlength="4" style="text-transform:uppercase;font-size:22px;font-weight:900;text-align:center;letter-spacing:0.3em;" onkeydown="if(event.key==='Enter')joinRoom()">
+        <button class="btn-add" onclick="joinRoom()">➜</button>
       </div>
-      <!-- Panneau Créer -->
-      <div id="panelCreate">
+      <div class="error" id="joinError"></div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 : LOBBY — Paramètres + joueurs (style Gartic Phone) -->
+  <div id="lobbyScreen" style="display:none;">
+    <div class="card">
+      <div class="game-title">🎭 Salle d'attente</div>
+      <div class="game-subtitle">待機中 — En attente des joueurs</div>
+      <div class="divider"></div>
+
+      <!-- Code + invite -->
+      <div class="room-code-box">
+        <div class="room-code-label">CODE DE LA SALLE</div>
+        <div class="room-code" id="lobbyCode">----</div>
+        <div class="room-code-hint">Partage ce code à tes amis 👆</div>
+      </div>
+      <div class="invite-box">
+        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;">🔗 Lien d'invitation</div>
+        <div class="invite-link" id="inviteLink">—</div>
+        <button class="btn btn-secondary" onclick="copyInvite()" style="margin-top:6px;padding:8px;font-size:13px;">📋 Copier le lien</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Liste joueurs -->
+      <div class="section-title">👥 Joueurs (<span id="lobbyCount">0</span>/<span id="lobbyMax">5</span>)</div>
+      <div class="player-list" id="lobbyPlayerList"></div>
+      <div class="waiting-dots" id="waitingDots">
+        <div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div>
+      </div>
+
+      <!-- PARAMÈTRES (visible host seulement, éditable) -->
+      <div id="hostSettingsPanel" style="display:none;">
+        <div class="divider"></div>
         <div class="section-title">⚙️ Paramètres de la partie</div>
         <div class="slider-row">
           <div class="slider-label">Joueurs<span>3 – 20</span></div>
@@ -311,6 +346,9 @@ select { width: 100%; cursor: pointer; }
           <div class="cat-chip" data-cat="Animaux" onclick="toggleCat(this)">🐾 Animaux</div>
           <div class="cat-chip" data-cat="Sports" onclick="toggleCat(this)">⚽ Sports</div>
           <div class="cat-chip" data-cat="Sons & Musiques" onclick="toggleCat(this)">🎵 Sons & Musiques</div>
+          <div class="cat-chip" data-cat="Nature" onclick="toggleCat(this)">🌿 Nature</div>
+          <div class="cat-chip" data-cat="Pokémon" onclick="toggleCat(this)">🎮 Pokémon</div>
+          <div class="cat-chip" data-cat="Célébrités" onclick="toggleCat(this)">⭐ Célébrités</div>
         </div>
         <div id="catError" style="color:var(--red);font-size:12px;font-weight:700;margin-top:6px;min-height:16px;"></div>
         <div class="divider"></div>
@@ -338,44 +376,17 @@ select { width: 100%; cursor: pointer; }
             <span id="groupSizeVal" style="font-weight:700;color:var(--red);min-width:16px;">3</span>
           </div>
         </div>
-        <button class="btn btn-primary" onclick="createRoom()">🏠 Créer la salle</button>
         <div class="error" id="errorBox"></div>
       </div>
-      <!-- Panneau Rejoindre -->
-      <div id="panelJoin" style="display:none;">
-        <div class="section-title">🔑 Code de la salle</div>
-        <div class="input-row">
-          <input type="text" id="joinCodeInput" placeholder="Ex: ABCD" maxlength="4" style="text-transform:uppercase;font-size:24px;font-weight:900;text-align:center;letter-spacing:0.3em;">
-        </div>
-        <button class="btn btn-primary" onclick="joinRoom()">🚀 Rejoindre</button>
-        <div class="error" id="joinError"></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ÉCRAN 2 : LOBBY (Salle d'attente) -->
-  <div id="lobbyScreen" style="display:none;">
-    <div class="card">
-      <div class="game-title">🎭 Salle d'attente</div>
-      <div class="game-subtitle">待機中 — En attente des joueurs</div>
-      <div class="divider"></div>
-      <div class="room-code-box">
-        <div class="room-code-label">CODE DE LA SALLE</div>
-        <div class="room-code" id="lobbyCode">----</div>
-        <div class="room-code-hint">Partage ce code à tes amis 👆</div>
+      <!-- Paramètres résumés pour les non-host -->
+      <div id="guestSettingsPanel" style="display:none;">
+        <div class="divider"></div>
+        <div class="status-bar" id="guestConfigSummary">⏳ En attente des paramètres de l'hôte…</div>
       </div>
-      <div class="invite-box">
-        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;">🔗 Lien d'invitation</div>
-        <div class="invite-link" id="inviteLink">—</div>
-        <button class="btn btn-secondary" onclick="copyInvite()" style="margin-top:6px;padding:8px;font-size:13px;">📋 Copier le lien</button>
-      </div>
-      <div class="divider"></div>
-      <div class="section-title">👥 Joueurs connectés (<span id="lobbyCount">0</span>/<span id="lobbyMax">5</span>)</div>
-      <div class="player-list" id="lobbyPlayerList"></div>
-      <div class="waiting-dots" id="waitingDots">
-        <div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div>
-      </div>
-      <div id="startBtnWrap" style="display:none;">
+
+      <!-- Bouton lancer -->
+      <div id="startBtnWrap" style="display:none;margin-top:16px;">
         <button class="btn btn-primary" onclick="startGameOnline()">始める — Lancer la partie 🎌</button>
       </div>
       <div id="waitingMsg" style="text-align:center;color:var(--grey);font-size:13px;margin-top:10px;"></div>
@@ -423,7 +434,7 @@ window.myId = myId;
 // =============================================
 // FIREBASE INIT
 // =============================================
-function initFirebase() {
+window.initFirebase = function() {
   const errEl = document.getElementById('fbError');
   errEl.innerText = '';
   const apiKey = document.getElementById('f_apiKey').value.trim();
@@ -467,11 +478,8 @@ if (savedApiKey && savedDbURL && savedProjectId) {
   document.getElementById('f_apiKey').value = savedApiKey;
   document.getElementById('f_databaseURL').value = savedDbURL;
   document.getElementById('f_projectId').value = savedProjectId;
-  setTimeout(() => initFirebase(), 200);
+  setTimeout(() => window.initFirebase(), 200);
 }
-
-// Lier le bouton directement dans le module (évite les problèmes de scope avec type="module")
-document.getElementById('btnConnectFirebase').addEventListener('click', initFirebase);
 
 // =============================================
 // TABS HOME
@@ -612,6 +620,7 @@ const categories = {
   ["Kirikou","Minuscule","Personnage minuscule mais courageux qui fait face à de grands dangers"],["Barbapapa","Les Shadoks","Série d'animation expérimentale et absurde des origines de la télévision française"],
   ["Inspecteur Gadget","Ulysse 31","Héros de série animée des années 80 équipé de gadgets futuristes pour ses missions"],
   ["Les Tortues Ninja","Ghostbusters","Groupe de héros animés des années 80 qui combattent des créatures surnaturelles ensemble"],
+  ["Slugterra","Huntik","Série animée avec des créatures de combat lancées comme des projectiles dans un monde souterrain"],
   ["Dragon Flyz","M.A.S.K.","Série des années 90 avec des véhicules ou des montures qui se transforment"]
 ],
 "Jeux de société": [
@@ -690,6 +699,102 @@ const categories = {
   ["Pink Floyd","Led Zeppelin","Groupe de rock britannique des années 70 connu pour ses albums conceptuels et ses solos"],["Michael Jackson","Prince","Artiste américain légendaire qui a dominé la pop et le funk dans les années 80"],
   ["David Bowie","Elton John","Artiste britannique flamboyant aux costumes extravagants et à la voix reconnaissable"],["Daft Punk","Chemical Brothers","Duo de musique électronique qui a rendu le genre populaire dans le monde entier"],["Aphex Twin","Squarepusher","Artiste électronique expérimental aux productions très complexes et inclassables"],
   ["Stravinsky","Debussy","Compositeur classique du début du 20e siècle aux harmonies innovantes et impressionnistes"],["Chopin","Liszt","Pianiste et compositeur virtuose du 19e siècle dont les pièces pour piano sont très exigeantes"]
+],
+"Nature": [
+  ["Volcan","Geyser","Phénomène géologique qui projette de la matière brûlante vers le haut"],
+  ["Séquoia","Baobab","Arbre gigantesque et imposant réputé pour sa longévité exceptionnelle"],
+  ["Tornade","Cyclone","Phénomène météorologique tourbillonnant et destructeur de grande ampleur"],
+  ["Corail","Éponge","Organisme marin fixé au fond de l'eau qui forme des structures colorées"],
+  ["Glacier","Iceberg","Grande masse de glace naturelle qui se déplace lentement dans un paysage froid"],
+  ["Désert","Toundra","Biome extrême avec peu de végétation et des conditions climatiques difficiles"],
+  ["Aurore boréale","Aurore australe","Phénomène lumineux coloré visible dans le ciel des régions polaires la nuit"],
+  ["Tremblement de terre","Tsunami","Catastrophe naturelle déclenchée par un mouvement soudain de la croûte terrestre"],
+  ["Mangrove","Marécage","Écosystème humide avec une végétation dense aux pieds dans l'eau"],
+  ["Cactus","Agave","Plante grasse adaptée à la survie en milieu aride avec peu d'eau"],
+  ["Cascade","Geyser","Jet naturel d'eau qui tombe ou jaillit depuis une hauteur"],
+  ["Prairie","Savane","Biome ouvert recouvert d'herbes avec peu ou pas d'arbres"],
+  ["Forêt tropicale","Jungle","Écosystème dense et humide avec une biodiversité exceptionnelle"],
+  ["Diamant","Émeraude","Pierre précieuse naturelle extraite du sol et utilisée en joaillerie"],
+  ["Mousson","Blizzard","Phénomène météorologique saisonnier avec des précipitations intenses"],
+  ["Stalactite","Stalagmite","Formation rocheuse naturelle qui pousse dans une grotte au fil du temps"],
+  ["Lune","Soleil","Astre naturel qui influence les marées et éclaire notre planète"],
+  ["Pollen","Spore","Particule microscopique produite par une plante pour se reproduire"],
+  ["Eucalyptus","Acacia","Arbre emblématique d'un continent tropical connu pour ses feuilles particulières"],
+  ["Grotte","Canyon","Relief naturel creusé par l'eau ou le vent dans la roche sur des millénaires"],
+  ["Récif","Atoll","Formation naturelle sous-marine ou insulaire composée de matière calcaire"],
+  ["Lave","Magma","Roche en fusion qui remonte depuis les profondeurs de la Terre"],
+  ["Tempête","Orage","Phénomène météorologique violent accompagné de vents forts et de précipitations"],
+  ["Feuille","Pétale","Organe végétal coloré ou vert qui pousse sur une plante ou un arbre"],
+  ["Source","Affluent","Point d'eau naturel qui surgit du sol ou rejoint un cours d'eau plus grand"],
+  ["Fossile","Ambre","Reste conservé d'un être vivant d'une époque ancienne retrouvé dans la roche"],
+  ["Dune","Falaise","Relief naturel formé par accumulation de sable ou érosion de la roche côtière"],
+  ["Champignon","Mousse","Organisme qui pousse dans les endroits humides et ombragés de la forêt"],
+  ["Trèfle","Fougère","Plante basse sans fleur qui aime les zones ombragées et humides"],
+  ["Torrent","Marée","Mouvement d'eau naturel puissant influencé par la pente ou la gravité lunaire"]
+],
+"Pokémon": [
+  ["Pikachu","Raichu","Pokémon électrique emblématique de la franchise avec des joues rouges rondes"],
+  ["Dracaufeu","Dracolosse","Pokémon de type feu aux grandes ailes qui crache des flammes et vole"],
+  ["Mewtwo","Mew","Pokémon légendaire psychique né d'une manipulation génétique en laboratoire"],
+  ["Évoli","Noctali","Pokémon capable d'évoluer en de nombreuses formes selon les conditions de jeu"],
+  ["Magicarpe","Léviator","Pokémon aquatique inutile au départ qui devient un monstre redoutable après évolution"],
+  ["Gengar","Fantominus","Pokémon fantôme violet qui se cache dans les ombres et effraie les humains"],
+  ["Bulbizarre","Herbizarre","Pokémon de départ vert avec un bulbe végétal qui pousse sur son dos"],
+  ["Carapuce","Carabaffe","Pokémon de départ bleu avec une carapace dure utilisée comme bouclier défensif"],
+  ["Salameche","Reptincel","Pokémon de départ orange en forme de lézard avec une flamme au bout de la queue"],
+  ["Artikodin","Electhor","Pokémon oiseau légendaire de couleur distincte associé à un élément climatique particulier"],
+  ["Ronflex","Goinfrex","Pokémon massif qui bloque les routes et dort profondément après avoir mangé énormément"],
+  ["Ponyta","Galopa","Pokémon feu en forme de cheval ou poulain avec une crinière et une queue enflammées"],
+  ["Metamorph","Smogo","Pokémon capable de se transformer parfaitement en n'importe quelle forme observée"],
+  ["Aerodactyl","Ptéra","Pokémon préhistorique fossile ressuscité grâce à de l'ADN ancien conservé dans la roche"],
+  ["Miaous","Persian","Pokémon félin avec une pièce brillante sur le front et un caractère très hautain"],
+  ["Voltorbe","Electrode","Pokémon qui ressemble à une Poké Ball et explose facilement quand il est énervé"],
+  ["Machoc","Machopeur","Pokémon de combat musclé qui s'entraîne constamment pour devenir toujours plus fort"],
+  ["Doduo","Dodrio","Pokémon oiseau incapable de voler mais capable de courir à grande vitesse sur ses pattes"],
+  ["Électabuzz","Magmar","Pokémon élémentaire avec un corps rayé ou enflammé très reconnaissable visuellement"],
+  ["Kangaskhan","Tauros","Pokémon de type normal imposant et robuste qui vit dans les zones sauvages ouvertes"],
+  ["Scyther","Insécateur","Pokémon insecte vert avec des lames tranchantes à la place des mains pour combattre"],
+  ["Leveinard","Leuphorie","Pokémon rose et doux très difficile à attraper réputé pour ses soins aux autres"],
+  ["Alakazam","Hypno","Pokémon de type psychique très intelligent qui manipule les esprits et les rêves"],
+  ["Tentacool","Tentacruel","Pokémon aquatique tentaculaire qui vit dans les océans et paralyse ses proies"],
+  ["Lapras","Lokhlass","Pokémon aquatique utilisé comme monture avec une grande carapace sur son dos"],
+  ["Spiritomb","Sablaireau","Pokémon rare à trouver dans les jeux qui nécessitait des conditions spéciales"],
+  ["Lugia","Ho-Oh","Pokémon légendaire associé à la mer ou au feu qui domine la nature sauvage"],
+  ["Tyranocif","Carchacrok","Pokémon de type combat et eau ou feu à l'allure d'un grand prédateur aquatique"],
+  ["Amphinobi","Carabaffe","Pokémon de départ aquatique de sa génération très populaire parmi les dresseurs"],
+  ["Sonistrelle","Noarfang","Pokémon de type vol et fantôme qui ressemble à un chauve-souris nocturne"]
+],
+"Célébrités": [
+  ["Cristiano Ronaldo","Lionel Messi","Attaquant de football considéré parmi les meilleurs joueurs de tous les temps"],
+  ["Elon Musk","Jeff Bezos","Milliardaire fondateur d'une grande entreprise technologique ou de conquête spatiale"],
+  ["Beyoncé","Rihanna","Chanteuse américaine aux millions de fans et aux performances scéniques spectaculaires"],
+  ["Leonardo DiCaprio","Brad Pitt","Acteur américain très célèbre récompensé aux Oscars après une longue carrière hollywoodienne"],
+  ["Kylie Jenner","Kim Kardashian","Personnalité du clan Kardashian devenue milliardaire grâce aux réseaux sociaux et cosmétiques"],
+  ["Zlatan Ibrahimovic","Neymar","Footballeur star réputé pour son ego exceptionnel et ses gestes techniques très spectaculaires"],
+  ["Taylor Swift","Ariana Grande","Chanteuse pop américaine aux fans très dévoués et aux albums qui battent les records"],
+  ["Eminem","Drake","Rappeur américain dont les albums ont dominé les charts pendant de nombreuses années"],
+  ["Will Smith","Denzel Washington","Acteur américain incontournable à Hollywood connu depuis plusieurs décennies dans le cinéma"],
+  ["LeBron James","Stephen Curry","Basketteur NBA parmi les plus dominants de toute l'histoire du sport américain"],
+  ["Kanye West","Jay-Z","Rappeur américain devenu un phénomène culturel bien au-delà de la simple musique"],
+  ["Serena Williams","Naomi Osaka","Joueuse de tennis féminin parmi les meilleures du monde depuis plusieurs années consécutives"],
+  ["Mark Zuckerberg","Bill Gates","Fondateur d'une des plus grandes entreprises technologiques au monde encore actif aujourd'hui"],
+  ["Billie Eilish","Olivia Rodrigo","Jeune chanteuse pop américaine qui a explosé sur la scène internationale très rapidement"],
+  ["Roger Federer","Rafael Nadal","Joueur de tennis masculin considéré parmi les meilleurs de toute l'histoire du sport"],
+  ["Adele","Ed Sheeran","Chanteur ou chanteuse britannique dont les ballades romantiques ont marqué toute une décennie"],
+  ["Michael Jordan","Kobe Bryant","Basketteur américain légendaire dont le maillot est retiré dans toute la ligue"],
+  ["Johnny Depp","Keanu Reeves","Acteur américain culte connu pour ses rôles emblématiques dans des franchises de cinéma"],
+  ["Lady Gaga","Madonna","Icône pop provocatrice dont les performances scéniques extravagantes ont marqué toute une génération"],
+  ["Novak Djokovic","Carlos Alcaraz","Joueur de tennis professionnel qui domine régulièrement le classement mondial masculin"],
+  ["Shakira","Jennifer Lopez","Chanteuse et danseuse latine aux clips très populaires connus dans le monde entier"],
+  ["Justin Bieber","Harry Styles","Chanteur pop masculin dont les fans adolescentes sont extrêmement passionnées et nombreuses"],
+  ["Zendaya","Timothée Chalamet","Jeune star montante d'Hollywood très présente dans les films à très gros budget récents"],
+  ["Kylian Mbappé","Erling Haaland","Attaquant de football jeune et explosif avec un nombre de buts vraiment impressionnant"],
+  ["Snoop Dogg","Ice Cube","Rappeur californien emblématique de la côte ouest présent dans le rap depuis les années 90"],
+  ["Oprah Winfrey","Ellen DeGeneres","Animatrice et personnalité télévisuelle américaine très influente et très engagée dans la philanthropie"],
+  ["Dwayne Johnson","Arnold Schwarzenegger","Acteur américain aux muscles impressionnants passé du sport de haut niveau au grand cinéma"],
+  ["BTS","Blackpink","Groupe de K-pop coréen aux fans extrêmement dévoués et nombreux à travers le monde entier"],
+  ["Selena Gomez","Demi Lovato","Chanteuse américaine ancienne enfant star Disney reconvertie avec succès dans la pop adulte"],
+  ["Mesut Ozil","Zinedine Zidane","Milieu de terrain créatif de football aux passes décisives légendaires et au palmarès impressionnant"]
 ]
 };
 
@@ -718,25 +823,24 @@ function generateCode() {
 // SETTINGS UI
 // =============================================
 window.updateSettings = function() {
-  const p = parseInt(document.getElementById('players').value);
+  const pEl = document.getElementById('players'); if (!pEl) return;
+  const p = parseInt(pEl.value);
   const u = parseInt(document.getElementById('undercoverCount').value);
   const m = parseInt(document.getElementById('mrWhiteCount').value);
   const j = parseInt(document.getElementById('jokerCount').value);
-  document.getElementById('playersValue').innerText = p;
-  document.getElementById('undercoverValue').innerText = u;
-  document.getElementById('mrWhiteValue').innerText = m;
-  document.getElementById('jokerValue').innerText = j;
+  const pvEl = document.getElementById('playersValue'); if(pvEl) pvEl.innerText = p;
+  const uvEl = document.getElementById('undercoverValue'); if(uvEl) uvEl.innerText = u;
+  const mvEl = document.getElementById('mrWhiteValue'); if(mvEl) mvEl.innerText = m;
+  const jvEl = document.getElementById('jokerValue'); if(jvEl) jvEl.innerText = j;
   const errBox = document.getElementById('errorBox');
-  if (!errBox) return;
   const total = u + m + j;
-  if (u === 0 && m === 0) {
-    errBox.innerText = '⚠️ Il faut au moins 1 imposteur ou 1 Mr White.';
-  } else if (total >= p) {
-    errBox.innerText = '⚠️ Il doit rester au moins 1 civil.';
-  } else {
-    errBox.innerText = '';
+  if (errBox) {
+    if (u === 0 && m === 0) errBox.innerText = '⚠️ Il faut au moins 1 imposteur ou 1 Mr White.';
+    else if (total >= p) errBox.innerText = '⚠️ Il doit rester au moins 1 civil.';
+    else errBox.innerText = '';
   }
-  const soloVote = document.getElementById('soloVote') && document.getElementById('soloVote').checked;
+  const soloVoteEl = document.getElementById('soloVote');
+  const soloVote = soloVoteEl && soloVoteEl.checked;
   const gsr = document.getElementById('groupSizeRow');
   if (gsr) gsr.style.display = soloVote ? 'none' : 'flex';
   updatePlayerBar(p, u, m, j);
@@ -774,10 +878,13 @@ window.toggleCat = function(chip) {
     const anyActive = Array.from(allChips).some(c => c.classList.contains('active'));
     if (!anyActive) randomChip.classList.add('active');
   }
-  document.getElementById('catError').innerText = '';
+  const catErrEl = document.getElementById('catError');
+  if (catErrEl) catErrEl.innerText = '';
+  // Push config after category change
+  if (isHost) pushConfig();
 };
 
-document.getElementById('soloVote') && document.getElementById('soloVote').addEventListener('change', updateSettings);
+// soloVote listener attached in showLobby for host
 
 // =============================================
 // CRÉATION DE SALLE
@@ -787,35 +894,21 @@ window.createRoom = function() {
   if (!pseudo) { alert('⚠️ Entre ton pseudo !'); return; }
   myPseudo = pseudo;
   isHost = true;
-
-  const players = parseInt(document.getElementById('players').value);
-  const undercoverCount = parseInt(document.getElementById('undercoverCount').value);
-  const mrWhiteCount = parseInt(document.getElementById('mrWhiteCount').value);
-  const jokerCount = parseInt(document.getElementById('jokerCount').value);
-  const showAlive = document.getElementById('showAlive').checked;
-  const impostorKnow = document.getElementById('impostorKnow').checked;
-  const showHint = document.getElementById('showHint').checked;
-  const soloVote = document.getElementById('soloVote').checked;
-  const groupSize = parseInt(document.getElementById('groupSize').value);
-
-  const totalSpecial = undercoverCount + mrWhiteCount + jokerCount;
-  if (undercoverCount === 0 && mrWhiteCount === 0) { alert('⚠️ Il faut au moins 1 imposteur ou 1 Mr White.'); return; }
-  if (totalSpecial >= players) { alert('⚠️ Il doit rester au moins 1 civil.'); return; }
-
-  const activeChips = document.querySelectorAll('.cat-chip.active');
-  let selectedCats = Array.from(activeChips).map(c => c.dataset.cat);
-  if (selectedCats.length === 0) { document.getElementById('catError').innerText = '⚠️ Choisis au moins une catégorie.'; return; }
-
   roomCode = generateCode();
+
+  // Default config — host will tweak in lobby
+  const defaultConfig = {
+    players: 5, undercoverCount: 1, mrWhiteCount: 0, jokerCount: 0,
+    showAlive: false, impostorKnow: true, showHint: false, soloVote: false,
+    groupSize: 3, selectedCats: ['Random 🎲']
+  };
 
   const roomData = {
     host: myId,
     hostName: myPseudo,
     status: 'lobby',
-    config: { players, undercoverCount, mrWhiteCount, jokerCount, showAlive, impostorKnow, showHint, soloVote, groupSize, selectedCats },
-    players: {
-      [myId]: { name: myPseudo, host: true, joinedAt: Date.now() }
-    },
+    config: defaultConfig,
+    players: { [myId]: { name: myPseudo, host: true, joinedAt: Date.now() } },
     createdAt: Date.now()
   };
 
@@ -823,8 +916,32 @@ window.createRoom = function() {
   set(roomRef, roomData).then(() => {
     showLobby();
   }).catch(e => {
-    document.getElementById('errorBox').innerText = '⚠️ Erreur Firebase : ' + e.message;
+    alert('⚠️ Erreur Firebase : ' + e.message);
   });
+};
+
+// Called by host when they change any setting in the lobby
+window.pushConfig = function() {
+  if (!isHost || !roomRef) return;
+  const p = parseInt(document.getElementById('players').value);
+  const u = parseInt(document.getElementById('undercoverCount').value);
+  const m = parseInt(document.getElementById('mrWhiteCount').value);
+  const j = parseInt(document.getElementById('jokerCount').value);
+  const activeChips = document.querySelectorAll('#catGrid .cat-chip.active');
+  const selectedCats = Array.from(activeChips).map(c => c.dataset.cat);
+  const config = {
+    players: p,
+    undercoverCount: u,
+    mrWhiteCount: m,
+    jokerCount: j,
+    showAlive: document.getElementById('showAlive').checked,
+    impostorKnow: document.getElementById('impostorKnow').checked,
+    showHint: document.getElementById('showHint').checked,
+    soloVote: document.getElementById('soloVote').checked,
+    groupSize: parseInt(document.getElementById('groupSize').value),
+    selectedCats: selectedCats.length ? selectedCats : ['Random 🎲']
+  };
+  update(roomRef, { config });
 };
 
 // =============================================
@@ -867,22 +984,51 @@ function showLobby() {
   const inviteUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
   document.getElementById('inviteLink').innerText = inviteUrl;
 
+  // Show host settings panel or guest summary
+  if (isHost) {
+    document.getElementById('hostSettingsPanel').style.display = 'block';
+    document.getElementById('guestSettingsPanel').style.display = 'none';
+    // Hook all inputs to auto-push config on change
+    ['players','undercoverCount','mrWhiteCount','jokerCount','groupSize'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => { updateSettings(); pushConfig(); });
+    });
+    ['showAlive','impostorKnow','showHint','soloVote'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => { updateSettings(); pushConfig(); });
+    });
+    updateSettings();
+    pushConfig(); // Push initial default config
+  } else {
+    document.getElementById('hostSettingsPanel').style.display = 'none';
+    document.getElementById('guestSettingsPanel').style.display = 'block';
+  }
+
   // Écouter les changements de la salle
   const unsubRoom = onValue(ref(db, 'rooms/' + roomCode), (snap) => {
     if (!snap.exists()) { alert('La salle a été supprimée.'); leaveRoom(); return; }
     const data = snap.val();
     playersData = data.players || {};
-    const maxPlayers = data.config.players;
+    const cfg = data.config || {};
+    const maxPlayers = cfg.players || 5;
     const playerCount = Object.keys(playersData).length;
 
     document.getElementById('lobbyMax').innerText = maxPlayers;
     document.getElementById('lobbyCount').innerText = playerCount;
 
+    // Guests: show config summary
+    if (!isHost) {
+      const cats = (cfg.selectedCats || ['Random']).join(', ');
+      const summary = `👥 ${maxPlayers} joueurs · 😈 ${cfg.undercoverCount||1} imposteur(s) · 👻 ${cfg.mrWhiteCount||0} Mr White · 🎲 ${cats}`;
+      const el = document.getElementById('guestConfigSummary');
+      if (el) el.innerText = summary;
+    }
+
     // Liste des joueurs
     const list = document.getElementById('lobbyPlayerList');
     if (list) {
       list.innerHTML = '';
-      Object.entries(playersData).forEach(([pid, p]) => {
+      Object.entries(playersData).sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0)).forEach(([pid, p]) => {
         const div = document.createElement('div');
         div.className = 'player-list-item';
         div.innerHTML = `<span>${p.name}</span>${p.host ? '<span class="host-badge">HOST</span>' : ''}<div class="${pid === myId ? 'ready-dot' : 'wait-dot'}"></div>`;
@@ -890,26 +1036,38 @@ function showLobby() {
       });
     }
 
-    // Bouton démarrer (host seulement, si salle pleine)
+    // Bouton démarrer
     const startWrap = document.getElementById('startBtnWrap');
     const waitMsg = document.getElementById('waitingMsg');
     const waitDots = document.getElementById('waitingDots');
     if (isHost) {
-      if (playerCount >= maxPlayers) {
-        startWrap.style.display = 'block';
-        waitMsg.innerText = '';
-        waitDots.style.display = 'none';
-      } else {
+      const u = cfg.undercoverCount||0, m = cfg.mrWhiteCount||0, j = cfg.jokerCount||0;
+      const configOk = (u > 0 || m > 0) && (u+m+j < maxPlayers);
+      const errBox = document.getElementById('errorBox');
+      if (!configOk) {
+        if (errBox) errBox.innerText = '⚠️ Config invalide (trop de rôles spéciaux).';
         startWrap.style.display = 'none';
-        waitMsg.innerText = `En attente des joueurs… (${playerCount}/${maxPlayers})`;
-        waitDots.style.display = 'flex';
+        if (waitDots) waitDots.style.display = 'none';
+        waitMsg.innerText = '';
+      } else {
+        if (errBox) errBox.innerText = '';
+        if (playerCount >= maxPlayers) {
+          startWrap.style.display = 'block';
+          waitMsg.innerText = '';
+          if (waitDots) waitDots.style.display = 'none';
+        } else {
+          startWrap.style.display = 'none';
+          waitMsg.innerText = `En attente des joueurs… (${playerCount}/${maxPlayers})`;
+          if (waitDots) waitDots.style.display = 'flex';
+        }
       }
     } else {
       startWrap.style.display = 'none';
       waitMsg.innerText = `En attente que l'hôte lance la partie… (${playerCount}/${maxPlayers})`;
+      if (waitDots) waitDots.style.display = 'flex';
     }
 
-    // Si la partie a démarré
+    // Partie démarrée
     if (data.status === 'playing' && data.roles) {
       unsubRoom();
       startLocalGame(data);
@@ -948,11 +1106,17 @@ window.leaveRoom = function() {
 // DÉMARRER PARTIE (HOST)
 // =============================================
 window.startGameOnline = function() {
-  // Récupérer les données de la salle
   get(roomRef).then(snap => {
     const data = snap.val();
     const config = data.config;
     const pData = data.players || {};
+    // Safety check
+    const u = config.undercoverCount||0, m = config.mrWhiteCount||0, j = config.jokerCount||0;
+    const names_count = Object.keys(pData).length;
+    if ((u===0 && m===0) || (u+m+j >= names_count)) {
+      alert('⚠️ Configuration invalide. Ajuste les paramètres avant de lancer.');
+      return;
+    }
 
     const names = shuffle(Object.values(pData).map(p => p.name));
     const { undercoverCount, mrWhiteCount, jokerCount } = config;
@@ -1061,10 +1225,7 @@ function startLocalGame(data) {
   unsubscribers.push(unsubGame);
 }
 
-// =============================================
-// PHASE RÉVÉLATION (chaque joueur voit son mot)
-// =============================================
-
+// renderRevealPhase defined below
 
 window.showMyWord = function() {
   const player = myRoleData;
@@ -1103,7 +1264,7 @@ window.showMyWord = function() {
       ${hintHtml}
     </div>
     ${aliveBox}
-    <button class="btn btn-secondary" onclick="advanceReveal()">Joueur suivant ➜</button>
+    <button class="btn btn-secondary" onclick="advanceReveal()">${nextLabel}</button>
   `;
 };
 
@@ -1114,7 +1275,7 @@ function renderRevealPhase(data) {
   data_currentPlayer_cache = data.currentPlayer || 0;
   const idx = data_currentPlayer_cache;
   if (idx >= playerNames.length) {
-    update(roomRef, { gamePhase: 'vote', currentVoterIndex: 0 });
+    if (isHost) update(roomRef, { gamePhase: 'vote', currentVoterIndex: 0 });
     return;
   }
   const name = playerNames[idx];
@@ -1156,7 +1317,7 @@ function renderVotePhase(data) {
   const voterIdx = data.currentVoterIndex || 0;
 
   if (voterIdx >= playerNames.length) {
-    update(roomRef, { gamePhase: 'results' });
+    if (isHost) update(roomRef, { gamePhase: 'results' });
     return;
   }
 
@@ -1269,6 +1430,16 @@ function renderResults(data) {
 }
 
 window.restartOnline = function() {
+  // Reset local game state
+  roles = [];
+  votes = {};
+  playerNames = [];
+  myRoleData = null;
+  data_currentPlayer_cache = 0;
+
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('lobbyScreen').style.display = 'block';
+
   if (isHost) {
     update(roomRef, {
       status: 'lobby',
@@ -1280,17 +1451,69 @@ window.restartOnline = function() {
       voteOrder: null,
       currentVoterIndex: 0,
       gamePhase: null
-    }).then(() => {
-      document.getElementById('gameScreen').style.display = 'none';
-      document.getElementById('lobbyScreen').style.display = 'block';
-      showLobby();
     });
+    // Re-show settings for host
+    const hsp = document.getElementById('hostSettingsPanel');
+    if (hsp) hsp.style.display = 'block';
   } else {
-    // Non-host : attendre que l'host relance
-    document.getElementById('gameScreen').style.display = 'none';
-    document.getElementById('lobbyScreen').style.display = 'block';
-    showLobby();
+    const gsp = document.getElementById('guestSettingsPanel');
+    if (gsp) gsp.style.display = 'block';
   }
+  // Re-listen to lobby state changes
+  const unsubRestart = onValue(ref(db, 'rooms/' + roomCode), (snap) => {
+    if (!snap.exists()) return;
+    const d = snap.val();
+    // Update player count display
+    const pData = d.players || {};
+    const cfg = d.config || {};
+    const pc = Object.keys(pData).length;
+    const mp = cfg.players || 5;
+    const lc = document.getElementById('lobbyCount');
+    const lm = document.getElementById('lobbyMax');
+    if (lc) lc.innerText = pc;
+    if (lm) lm.innerText = mp;
+    // Rebuild player list
+    const list = document.getElementById('lobbyPlayerList');
+    if (list) {
+      list.innerHTML = '';
+      Object.entries(pData).sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0)).forEach(([pid, p]) => {
+        const div = document.createElement('div');
+        div.className = 'player-list-item';
+        div.innerHTML = `<span>${p.name}</span>${p.host?'<span class="host-badge">HOST</span>':''}<div class="${pid===myId?'ready-dot':'wait-dot'}"></div>`;
+        list.appendChild(div);
+      });
+    }
+    // Guest summary
+    if (!isHost) {
+      const cats = (cfg.selectedCats||['Random']).join(', ');
+      const el = document.getElementById('guestConfigSummary');
+      if (el) el.innerText = `👥 ${mp} joueurs · 😈 ${cfg.undercoverCount||1} imposteur(s) · 🎲 ${cats}`;
+    }
+    // Start button for host
+    const sw = document.getElementById('startBtnWrap');
+    const wm = document.getElementById('waitingMsg');
+    const wd = document.getElementById('waitingDots');
+    if (isHost && sw) {
+      const u = cfg.undercoverCount||0, m = cfg.mrWhiteCount||0, j = cfg.jokerCount||0;
+      if ((u>0||m>0) && (u+m+j<mp) && pc>=mp) {
+        sw.style.display = 'block'; if(wm) wm.innerText=''; if(wd) wd.style.display='none';
+      } else {
+        sw.style.display = 'none';
+        if(wm) wm.innerText = pc < mp ? `En attente des joueurs… (${pc}/${mp})` : '';
+        if(wd) wd.style.display = pc < mp ? 'flex' : 'none';
+      }
+    } else if (sw) {
+      sw.style.display = 'none';
+      if(wm) wm.innerText = `En attente que l'hôte lance la partie… (${pc}/${mp})`;
+      if(wd) wd.style.display = 'flex';
+    }
+    // Game restarted → go to game
+    if (d.status === 'playing' && d.roles) {
+      unsubRestart();
+      startLocalGame(d);
+    }
+  });
+  unsubscribers.push(unsubRestart);
 };
 
 // Initialisation UI
