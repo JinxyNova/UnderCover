@@ -463,7 +463,6 @@ window.initFirebase = function() {
     const invCode = urlParams.get('room');
     if (invCode) {
       document.getElementById('joinCodeInput').value = invCode.toUpperCase();
-      switchTab('join');
     }
   } catch(e) {
     errEl.innerText = '⚠️ Erreur : ' + e.message;
@@ -485,10 +484,14 @@ if (savedApiKey && savedDbURL && savedProjectId) {
 // TABS HOME
 // =============================================
 window.switchTab = function(tab) {
-  document.getElementById('tabCreate').classList.toggle('active', tab === 'create');
-  document.getElementById('tabJoin').classList.toggle('active', tab === 'join');
-  document.getElementById('panelCreate').style.display = tab === 'create' ? 'block' : 'none';
-  document.getElementById('panelJoin').style.display = tab === 'join' ? 'block' : 'none';
+  const tabCreate = document.getElementById('tabCreate');
+  const tabJoin = document.getElementById('tabJoin');
+  const panelCreate = document.getElementById('panelCreate');
+  const panelJoin = document.getElementById('panelJoin');
+  if (tabCreate) tabCreate.classList.toggle('active', tab === 'create');
+  if (tabJoin) tabJoin.classList.toggle('active', tab === 'join');
+  if (panelCreate) panelCreate.style.display = tab === 'create' ? 'block' : 'none';
+  if (panelJoin) panelJoin.style.display = tab === 'join' ? 'block' : 'none';
 };
 
 // =============================================
@@ -1110,7 +1113,6 @@ window.startGameOnline = function() {
     const data = snap.val();
     const config = data.config;
     const pData = data.players || {};
-    // Safety check
     const u = config.undercoverCount||0, m = config.mrWhiteCount||0, j = config.jokerCount||0;
     const names_count = Object.keys(pData).length;
     if ((u===0 && m===0) || (u+m+j >= names_count)) {
@@ -1118,7 +1120,9 @@ window.startGameOnline = function() {
       return;
     }
 
-    const names = shuffle(Object.values(pData).map(p => p.name));
+    // Build ordered names list from actual players joined
+    const allNames = Object.values(pData).map(p => p.name);
+    const names = shuffle(allNames);
     const { undercoverCount, mrWhiteCount, jokerCount } = config;
 
     // Choisir catégorie et paire de mots
@@ -1128,6 +1132,7 @@ window.startGameOnline = function() {
     } else {
       pool = config.selectedCats.filter(c => categories[c]);
     }
+    if (!pool.length) pool = Object.keys(categories);
     const category = pool[Math.floor(Math.random() * pool.length)];
     const pairPool = shuffle([...categories[category]]);
     const pair = pairPool[0];
@@ -1145,13 +1150,12 @@ window.startGameOnline = function() {
     for (let i = 0; i < undercoverCount; i++) rolesArr[indexes[pointer++]] = { role: 'Undercover', word: undercoverWord, hint: hintText };
     for (let i = 0; i < mrWhiteCount; i++) rolesArr[indexes[pointer++]] = { role: 'Mr White', word: '❓', hint: hintText };
     for (let i = 0; i < jokerCount; i++) rolesArr[indexes[pointer++]] = { role: 'Joker', word: civilWord, hint: hintText };
-    rolesArr = shuffle(rolesArr);
 
-    // Mapper rôles aux noms (par ordre shufflé)
+    // Mapper rôles aux noms
     const roleMap = {};
     names.forEach((name, i) => { roleMap[name] = rolesArr[i]; });
 
-    // Mapper aussi aux IDs joueurs (pour affichage perso sur chaque device)
+    // Mapper aussi aux IDs joueurs
     const playerRoles = {};
     Object.entries(pData).forEach(([pid, p]) => {
       playerRoles[pid] = roleMap[p.name];
@@ -1164,18 +1168,20 @@ window.startGameOnline = function() {
     // Ordre de vote
     const voteOrder = shuffle([...names]);
 
-    // Update Firebase
+    // Update Firebase (tout en une seule écriture atomique)
     update(roomRef, {
       status: 'playing',
-      roles: roleMap,           // name → role
-      playerRoles: playerRoles, // id → role
+      roles: roleMap,
+      playerRoles: playerRoles,
       playerOrder: names,
       currentPlayer: 0,
       votes: initialVotes,
       voteOrder: voteOrder,
       currentVoterIndex: 0,
-      gamePhase: 'reveal'       // reveal | vote | results
+      gamePhase: 'reveal'
     });
+  }).catch(e => {
+    alert('⚠️ Erreur Firebase : ' + e.message);
   });
 };
 
@@ -1183,7 +1189,8 @@ window.startGameOnline = function() {
 // DÉMARRER JEU LOCAL (tous les appareils)
 // =============================================
 function startLocalGame(data) {
-  unsubscribers.forEach(u => u && u());
+  // Nettoyer les anciens listeners (lobby)
+  unsubscribers.forEach(u => { try { u && u(); } catch(e){} });
   unsubscribers = [];
 
   document.getElementById('lobbyScreen').style.display = 'none';
@@ -1199,8 +1206,7 @@ function startLocalGame(data) {
   roles = playerNames.map(name => data.roles[name]);
   votes = data.votes || {};
 
-  // Mon rôle
-  const myName = (data.players && data.players[myId]) ? data.players[myId].name : '';
+  // Mon rôle (défini en priorité avant tout render)
   myRoleData = data.playerRoles ? data.playerRoles[myId] : null;
 
   // Écouter les mises à jour de la salle
@@ -1209,8 +1215,11 @@ function startLocalGame(data) {
     const d = snap.val();
     // Sync état
     playerNames = d.playerOrder || [];
+    if (!d.roles) return;
     roles = playerNames.map(name => d.roles[name]);
     votes = d.votes || {};
+    // Toujours re-syncer mon rôle depuis playerRoles (plus fiable)
+    if (d.playerRoles && d.playerRoles[myId]) myRoleData = d.playerRoles[myId];
 
     if (d.gamePhase === 'reveal') {
       currentPlayer = d.currentPlayer || 0;
@@ -1225,7 +1234,8 @@ function startLocalGame(data) {
   unsubscribers.push(unsubGame);
 }
 
-// renderRevealPhase defined below
+// Cache pour currentPlayer pendant révélation
+let data_currentPlayer_cache = 0;
 
 window.showMyWord = function() {
   const player = myRoleData;
@@ -1268,14 +1278,18 @@ window.showMyWord = function() {
   `;
 };
 
-// Cache pour currentPlayer pendant révélation
-let data_currentPlayer_cache = 0;
-
 function renderRevealPhase(data) {
   data_currentPlayer_cache = data.currentPlayer || 0;
   const idx = data_currentPlayer_cache;
   if (idx >= playerNames.length) {
+    // Transition vers le vote — seul le host pousse
     if (isHost) update(roomRef, { gamePhase: 'vote', currentVoterIndex: 0 });
+    else {
+      gs().innerHTML = `<div class="card" style="text-align:center;">
+        <div class="status-bar">⏳ Passage au vote…</div>
+        <div class="waiting-dots"><div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div></div>
+      </div>`;
+    }
     return;
   }
   const name = playerNames[idx];
@@ -1318,6 +1332,12 @@ function renderVotePhase(data) {
 
   if (voterIdx >= playerNames.length) {
     if (isHost) update(roomRef, { gamePhase: 'results' });
+    else {
+      gs().innerHTML = `<div class="card" style="text-align:center;">
+        <div class="status-bar">⏳ Calcul des résultats…</div>
+        <div class="waiting-dots"><div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div></div>
+      </div>`;
+    }
     return;
   }
 
